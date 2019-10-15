@@ -11,7 +11,7 @@ module ftoi (
     wire [54:0] ext_abs_ans = ({32'b1, m} << e_unbised_plus_1);
 
     wire [30:0] abs_ans = ext_abs_ans[54:24] + {30'b0, ext_abs_ans[23]};
-    wire [31:0] ans = s ? (~abs_ans + 31'b0) : abs_ans;
+    wire [31:0] ans = s ? (~{1'b0, abs_ans} + 32'b1) : {1'b0, abs_ans};
 
     assign y = // e >= 158 (|x| >= 2^31) のときは int_max or int_min を返す
         e <= 8'd125
