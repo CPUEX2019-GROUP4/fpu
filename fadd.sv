@@ -1,10 +1,13 @@
-// 3Sのhd実験からコピー
+module fadd (
+    input wire [31:0] x1,
+    input wire [31:0] x2,
+    output wire [31:0] y,
+    input wire ready,
+    output wire valid,
+    input wire clk,
+    input wire rstn );
 
-module fadd
-    ( input wire [31:0] x1,
-      input wire [31:0] x2,
-      output wire [31:0] y,
-      output wire ovf);
+    assign valid = ready; // とりあえず
 
     // 1
     wire s1 = x1[31];
@@ -65,7 +68,6 @@ module fadd
     wire [7:0] eyd = (mye[26] == 1'b1) ? ((esi == 8'd255) ? 8'd255 : esi) : es;
     wire [26:0] myd = (mye[26] == 1'b1) ? ((esi == 8'd255) ? {2'b01, 25'b0} : (mye >> 1)) : mye;
     wire stck = (mye[26] == 1'b1) ? ((esi == 8'd255) ? 1'b0 : (tstck | mye[0])) : tstck;
-    wire ovf1 = (mye[26] == 1'b1 && esi == 8'd255) ? 1'b1 : 1'b0;
 
     // 16 -
     wire [4:0] se = myd[25] == 1'b1 ? 5'd0:
@@ -114,7 +116,6 @@ module fadd
     // 21 -
     wire [7:0] ey = (myr[24] == 1'b1) ? eyri : ((myr[23:0] == 24'b0) ? 8'b0 : eyr);
     wire [22:0] my = (myr[24] == 1'b1) ? 23'b0 : ((myr[23:0] == 24'b0) ? 23'b0 : myr[22:0]);
-    wire ovf2 = (myr[24] == 1'b1 && eyri == 8'd255) ? 1'b1 : 1'b0;
 
     // 22 -
     wire sy = (ey == 8'b0 && my == 23'b0) ? (s1 & s2) : ss;
@@ -129,7 +130,5 @@ module fadd
         : ((e1 == 8'd255 && e2 == 8'd255 && s1 == s2) ? {s1, 8'd255, 23'b0}
         : ((e1 == 8'd255 && e2 == 8'd255) ? {1'b1, 8'd255, 1'b1, 22'b0}
         : {sy, ey, my})))));
-    wire ovf3 = (e1 != 8'd255 && e2 != 8'd255) ? 1'b1 : 1'b0;
 
-    assign ovf = (ovf1 | ovf2) & ovf3;
 endmodule
