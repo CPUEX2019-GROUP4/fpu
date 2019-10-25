@@ -24,6 +24,6 @@ module itof (
 
     wire s = x[31];
 
-    assign y = {s, e, m}
+    assign y = {s, e, m};
 
 endmodule

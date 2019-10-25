@@ -31,10 +31,7 @@ module fpu (
     localparam IDXFCLT  = 4;
     localparam IDXFTOI  = 5;
     localparam IDXITOF  = 6;
-    localparam IDXMOV   = 7;
-    localparam IDXSET   = 8;
-    localparam IDXGET   = 9;
-    localparam IDXCOUNT = 10;
+    localparam IDXCOUNT = 7;
 
     localparam [2:0] STWAIT = 3'b100;
     localparam [2:0] STEXEC = 3'b010;
@@ -63,13 +60,10 @@ module fpu (
     wire ready_ftoi = (state == STWAIT || state == STEXEC) && ready && operation == OPFTOI;
     wire ready_itof = (state == STWAIT || state == STEXEC) && ready && operation == OPITOF;
 
-    wire [0:IDXCOUNT - 1] valids;
-    
-    assign valids[IDXMOV] = state == STWAIT && ready && operation == OPMOV;
-    assign valids[IDXSET] = state == STWAIT && ready && operation == OPSET;
-    assign valids[IDXGET] = state == STWAIT && ready && operation == OPGET;
+    reg [0:IDXCOUNT - 1] valids;
 
-    assign valid = state && |valids;
+    assign mod_valid = |valids;
+    assign valid = ready && (state == STWRITE || operation == OPMOV || operation == OPSET || operation == OPGET);
     assign out_data1 = operation == OPFCLT ? res1_fclt : 'x;
     assign out_data32 = operation == OPGET ? arg1
         : (operation == OPFTOI ? res32_ftoi : 'x);
@@ -132,7 +126,7 @@ module fpu (
         .rstn(rstn)
     );
 
-    ftoi itof0 (
+    itof itof0 (
         .x(in_data),
         .y(res32_itof),
         .ready(ready_itof),
@@ -144,21 +138,20 @@ module fpu (
     always @(posedge clk) begin
         if (~rstn) begin
             state <= STWAIT;
-        end else if (state == STWAIT) begin 
-            if (ready) begin
-                case (operation)
-                    OPMOV: register[y] <= arg1;
-                    OPSET: register[y] <= in_data;
-                    OPGET: ; // nothing to do
-                    default: state <= (valid ? STWRITE : STEXEC);
-                endcase
+        end else begin
+            if (state == STWAIT) begin 
+                if (ready) begin
+                    if (~(operation == OPMOV || operation == OPSET || operation == OPGET)) begin
+                        state <= STEXEC;
+                    end
+                end
+            end else if (state == STEXEC) begin
+                if (mod_valid) begin
+                    state <= STWRITE;
+                end
+            end else if (state == STWRITE) begin
+                state <= STWAIT;
             end
-        end else if (state == STEXEC) begin
-            if (valid) begin
-                state <= STWRITE;
-            end
-        end else if (state == STWRITE) begin
-            state <= STWAIT;
         end
     end
 
@@ -167,20 +160,23 @@ module fpu (
             for (i = 0; i < 32; i = i + 1) begin
                 register[i] <= 32'b0;
             end
+        end else if (state == STWAIT) begin
+            if (operation == OPMOV) begin
+                register[y] <= arg1;
+            end else if (operation == OPSET) begin
+                register[y] <= in_data;
+            end
+            // nothing to do for get
         end else if (state == STWRITE) begin
             if (valids[IDXFNEG]) begin
                 register[y] <= res32_fneg;
-            end
-            if (valids[IDXFADD]) begin
+            end else if (valids[IDXFADD]) begin
                 register[y] <= res32_fadd;
-            end
-            if (valids[IDXFSUB] begin
+            end else if (valids[IDXFSUB]) begin
                 register[y] <= res32_fsub;
-            end
-            if (valids[IDXFMUL]) begin
+            end else if (valids[IDXFMUL]) begin
                 register[y] <= res32_fmul;
-            end
-            if (valids[IDXITOF]) begin
+            end else if (valids[IDXITOF]) begin
                 register[y] <= res32_itof;
             end
             // nothing to do for fclt, ftoi
