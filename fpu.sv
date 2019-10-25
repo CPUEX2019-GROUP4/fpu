@@ -47,16 +47,21 @@ module fpu (
     wire [31:0] arg1 = register[x1];
     wire [31:0] arg2 = register[x2];
 
-    wire res1;
-    wire [31:0] res32;
+    reg res1_fclt;
+    reg [31:0] res32_fneg;
+    reg [31:0] res32_fadd;
+    reg [31:0] res32_fsub;
+    reg [31:0] res32_fmul;
+    reg [31:0] res32_ftoi;
+    reg [31:0] res32_itof;
 
-    wire ready_fneg = state == STWAIT && ready && operation == OPFNEG;
-    wire ready_fadd = state == STWAIT && ready && operation == OPFADD;
-    wire ready_fsub = state == STWAIT && ready && operation == OPFSUB;
-    wire ready_fmul = state == STWAIT && ready && operation == OPFMUL;
-    wire ready_fclt = state == STWAIT && ready && operation == OPFCLT;
-    wire ready_ftoi = state == STWAIT && ready && operation == OPFTOI;
-    wire ready_itof = state == STWAIT && ready && operation == OPITOF;
+    wire ready_fneg = (state == STWAIT || state == STEXEC) && ready && operation == OPFNEG;
+    wire ready_fadd = (state == STWAIT || state == STEXEC) && ready && operation == OPFADD;
+    wire ready_fsub = (state == STWAIT || state == STEXEC) && ready && operation == OPFSUB;
+    wire ready_fmul = (state == STWAIT || state == STEXEC) && ready && operation == OPFMUL;
+    wire ready_fclt = (state == STWAIT || state == STEXEC) && ready && operation == OPFCLT;
+    wire ready_ftoi = (state == STWAIT || state == STEXEC) && ready && operation == OPFTOI;
+    wire ready_itof = (state == STWAIT || state == STEXEC) && ready && operation == OPITOF;
 
     wire [0:IDXCOUNT - 1] valids;
     
@@ -65,12 +70,13 @@ module fpu (
     assign valids[IDXGET] = state == STWAIT && ready && operation == OPGET;
 
     assign valid = state && |valids;
-    assign out_data1 = res1;
-    assign out_data32 = operation == OPGET ? arg1 : res32;
+    assign out_data1 = operation == OPFCLT ? res1_fclt : 'x;
+    assign out_data32 = operation == OPGET ? arg1
+        : (operation == OPFTOI ? res32_ftoi : 'x);
 
     fneg fneg0 (
         .x(arg1),
-        .y(res32),
+        .y(res32_fneg),
         .ready(ready_fneg),
         .valid(valids[IDXFNEG]),
         .clk(clk),
@@ -80,7 +86,7 @@ module fpu (
     fadd fadd0 (
         .x1(arg1),
         .x2(arg2),
-        .y(res32),
+        .y(res32_fadd),
         .ready(ready_fadd),
         .valid(valids[IDXFADD]),
         .clk(clk),
@@ -90,7 +96,7 @@ module fpu (
     fsub fsub0 (
         .x1(arg1),
         .x2(arg2),
-        .y(res32),
+        .y(res32_fsub),
         .ready(ready_fsub),
         .valid(valids[IDXFSUB]),
         .clk(clk),
@@ -100,7 +106,7 @@ module fpu (
     fmul fmul0 (
         .x1(arg1),
         .x2(arg2),
-        .y(res32),
+        .y(res32_fmul),
         .ready(ready_fmul),
         .valid(valids[IDXFMUL]),
         .clk(clk),
@@ -110,7 +116,7 @@ module fpu (
     fclt fclt0 (
         .x1(arg1),
         .x2(arg2),
-        .y(res1),
+        .y(res1_fclt),
         .ready(ready_fclt),
         .valid(valids[IDXFCLT]),
         .clk(clk),
@@ -119,7 +125,7 @@ module fpu (
 
     ftoi ftoi0 (
         .x(arg1),
-        .y(res32),
+        .y(res32_ftoi),
         .ready(ready_ftoi),
         .valid(valids[IDXFTOI]),
         .clk(clk),
@@ -128,7 +134,7 @@ module fpu (
 
     ftoi itof0 (
         .x(in_data),
-        .y(res32),
+        .y(res32_itof),
         .ready(ready_itof),
         .valid(valids[IDXITOF]),
         .clk(clk),
@@ -162,9 +168,20 @@ module fpu (
                 register[i] <= 32'b0;
             end
         end else if (state == STWRITE) begin
-            if (valids[IDXFNEG] || valids[IDXFADD] || valids[IDXFSUB]
-                || valids[IDXFMUL] || valids[IDXITOF]) begin
-                register[y] <= res32;
+            if (valids[IDXFNEG]) begin
+                register[y] <= res32_fneg;
+            end
+            if (valids[IDXFADD]) begin
+                register[y] <= res32_fadd;
+            end
+            if (valids[IDXFSUB] begin
+                register[y] <= res32_fsub;
+            end
+            if (valids[IDXFMUL]) begin
+                register[y] <= res32_fmul;
+            end
+            if (valids[IDXITOF]) begin
+                register[y] <= res32_itof;
             end
             // nothing to do for fclt, ftoi
         end
