@@ -23,6 +23,7 @@ module fpu (
     localparam [5:0] OPFTOI = 6'b111000;
     localparam [5:0] OPITOF = 6'b111001;
     localparam [5:0] OPFMOV = 6'b000110;
+    localparam [5:0] OPFORI = 6'b111101;
     localparam [5:0] OPSET  = 6'b111110;
     localparam [5:0] OPGET  = 6'b111111;
 
@@ -79,7 +80,7 @@ module fpu (
     wire mod_valid = |valids;
 
     assign valid = ready && (state == STWRITE
-        || operation == OPFMOV || operation == OPSET || operation == OPGET
+        || operation == OPFMOV || operation == OPSET || operation == OPGET || operation == OPFORI
         || (mod_valid && (operation == OPFCLT || operation == OPFCZ || operation == OPFTOI)));
     assign out_data1 = operation == OPFCLT ? res1_fclt
         : (operation == OPFCZ ? res1_fcz : 'x);
@@ -177,7 +178,8 @@ module fpu (
         end else begin
             if (state == STWAIT) begin 
                 if (ready) begin
-                    if (~(operation == OPFMOV || operation == OPSET || operation == OPGET)) begin
+                    if (~(operation == OPFMOV || operation == OPFORI
+                        || operation == OPSET || operation == OPGET)) begin
                         state <= mod_valid ? STWRITE : STEXEC;
                     end
                 end
@@ -208,9 +210,11 @@ module fpu (
         end else if (state == STWAIT) begin
             if (operation == OPFMOV) begin
                 register[y] <= arg1;
+            end else if (operation == OPFORI) begin
+                register[y] <= arg1 | in_data;
             end else if (operation == OPSET) begin
                 register[y] <= in_data;
-            end
+            end 
             // nothing to do for get
         end else if (state == STWRITE) begin
             if (operation == OPFNEG) begin

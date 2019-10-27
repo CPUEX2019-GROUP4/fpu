@@ -54,28 +54,34 @@ module top ();
         if (i == 5) begin
             operation <= 6'b111110;
             in_data <= 32'hc0490fcf;
-            y <= 5'd2;
+            y <= 5'd0;
             ready <= 1;
         // end else if (i == 15) begin
         //     operation <= 6'b010000;
         //     x1 <= 5'd2;
         //     y <= 5'd3;
         //     ready <= 1;
-        end else if (i == 15) begin
-            operation <= 6'b111001;
-            y <= 5'd0;
-            in_data <= 32'd43;
-            ready <= 1;
-        end else if (i == 25) begin
-            operation <= 6'b111001;
-            y <= 5'd1;
-            in_data <= 32'd14;
-            ready <= 1;
+        // end else if (i == 15) begin
+        //     operation <= 6'b111001;
+        //     y <= 5'd0;
+        //     in_data <= 32'd43;
+        //     ready <= 1;
+        // end else if (i == 25) begin
+        //     operation <= 6'b111001;
+        //     y <= 5'd1;
+        //     in_data <= 32'd14;
+        //     ready <= 1;
+        // end else if (i == 35) begin
+        //     operation <= 6'b000001;
+        //     x1 <= 5'd1;
+        //     x2 <= 5'd0;
+        //     y <= 5'd2;
+        //     ready <= 1;
         end else if (i == 35) begin
-            operation <= 6'b000001;
-            x1 <= 5'd1;
-            x2 <= 5'd0;
-            y <= 5'd2;
+            operation <= 6'b111101;
+            x1 <= 5'd0;
+            y <= 5'd1;
+            in_data <= 32'h93cd9394;
             ready <= 1;
         // end else if (i == 25) begin
         //     operation <= 6'b111001;

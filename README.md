@@ -48,10 +48,12 @@
 |:--|:--:|
 |ftoi|111000|
 |itof|111001|
+|fori|111101|
 |set|111110|
 |get|111111|
 
 - ftoi: out_data32 <- float_to_int(register[x1])
 - itof: register[y] <- int_to_float(in_data)
+- fori: register[y] <- register[x1] | in_data
 - set: register[y] <- in_data
 - get: out_data32 <- register[x1]
