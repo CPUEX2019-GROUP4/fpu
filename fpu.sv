@@ -14,24 +14,28 @@ module fpu (
     integer i;
 
     localparam [5:0] OPFNEG = 6'b010000;
+    localparam [5:0] OPFABS = 6'b000101;
     localparam [5:0] OPFADD = 6'b000000;
     localparam [5:0] OPFSUB = 6'b000001;
     localparam [5:0] OPFMUL = 6'b000010;
     localparam [5:0] OPFCLT = 6'b100000;
+    localparam [5:0] OPFCZ  = 6'b101000;
     localparam [5:0] OPFTOI = 6'b111000;
     localparam [5:0] OPITOF = 6'b111001;
-    localparam [5:0] OPMOV  = 6'b111101;
+    localparam [5:0] OPFMOV = 6'b000110;
     localparam [5:0] OPSET  = 6'b111110;
     localparam [5:0] OPGET  = 6'b111111;
 
     localparam IDXFNEG  = 0;
-    localparam IDXFADD  = 1;
-    localparam IDXFSUB  = 2;
-    localparam IDXFMUL  = 3;
-    localparam IDXFCLT  = 4;
-    localparam IDXFTOI  = 5;
-    localparam IDXITOF  = 6;
-    localparam IDXCOUNT = 7;
+    localparam IDXFABS  = 1;
+    localparam IDXFADD  = 2;
+    localparam IDXFSUB  = 3;
+    localparam IDXFMUL  = 4;
+    localparam IDXFCLT  = 5;
+    localparam IDXFCZ   = 6;
+    localparam IDXFTOI  = 7;
+    localparam IDXITOF  = 8;
+    localparam IDXCOUNT = 9;
 
     localparam [2:0] STWAIT = 3'b100;
     localparam [2:0] STEXEC = 3'b010;
@@ -44,27 +48,41 @@ module fpu (
     wire [31:0] arg1 = register[x1];
     wire [31:0] arg2 = register[x2];
 
-    reg res1_fclt;
-    reg [31:0] res32_fneg;
-    reg [31:0] res32_fadd;
-    reg [31:0] res32_fsub;
-    reg [31:0] res32_fmul;
-    reg [31:0] res32_ftoi;
-    reg [31:0] res32_itof;
+    wire res1_fclt;
+    wire res1_fcz;
+    wire [31:0] res32_fneg;
+    wire [31:0] res32_fabs;
+    wire [31:0] res32_fadd;
+    wire [31:0] res32_fsub;
+    wire [31:0] res32_fmul;
+    wire [31:0] res32_ftoi;
+    wire [31:0] res32_itof;
+
+    reg [31:0] rres32_fneg;
+    reg [31:0] rres32_fabs;
+    reg [31:0] rres32_fadd;
+    reg [31:0] rres32_fsub;
+    reg [31:0] rres32_fmul;
+    reg [31:0] rres32_itof;
 
     wire ready_fneg = (state == STWAIT || state == STEXEC) && ready && operation == OPFNEG;
+    wire ready_fabs = (state == STWAIT || state == STEXEC) && ready && operation == OPFABS;
     wire ready_fadd = (state == STWAIT || state == STEXEC) && ready && operation == OPFADD;
     wire ready_fsub = (state == STWAIT || state == STEXEC) && ready && operation == OPFSUB;
     wire ready_fmul = (state == STWAIT || state == STEXEC) && ready && operation == OPFMUL;
     wire ready_fclt = (state == STWAIT || state == STEXEC) && ready && operation == OPFCLT;
+    wire ready_fcz  = (state == STWAIT || state == STEXEC) && ready && operation == OPFCZ;
     wire ready_ftoi = (state == STWAIT || state == STEXEC) && ready && operation == OPFTOI;
     wire ready_itof = (state == STWAIT || state == STEXEC) && ready && operation == OPITOF;
 
-    reg [0:IDXCOUNT - 1] valids;
+    wire [0:IDXCOUNT - 1] valids;
+    wire mod_valid = |valids;
 
-    assign mod_valid = |valids;
-    assign valid = ready && (state == STWRITE || operation == OPMOV || operation == OPSET || operation == OPGET);
-    assign out_data1 = operation == OPFCLT ? res1_fclt : 'x;
+    assign valid = ready && (state == STWRITE
+        || operation == OPFMOV || operation == OPSET || operation == OPGET
+        || (mod_valid && (operation == OPFCLT || operation == OPFCZ || operation == OPFTOI)));
+    assign out_data1 = operation == OPFCLT ? res1_fclt
+        : (operation == OPFCZ ? res1_fcz : 'x);
     assign out_data32 = operation == OPGET ? arg1
         : (operation == OPFTOI ? res32_ftoi : 'x);
 
@@ -73,6 +91,15 @@ module fpu (
         .y(res32_fneg),
         .ready(ready_fneg),
         .valid(valids[IDXFNEG]),
+        .clk(clk),
+        .rstn(rstn)
+    );
+
+    fabs fabs0 (
+        .x(arg1),
+        .y(res32_fabs),
+        .ready(ready_fabs),
+        .valid(valids[IDXFABS]),
         .clk(clk),
         .rstn(rstn)
     );
@@ -117,6 +144,15 @@ module fpu (
         .rstn(rstn)
     );
 
+    fcz fcz0 (
+        .x(arg1),
+        .y(res1_fcz),
+        .ready(ready_fcz),
+        .valid(valids[IDXFCZ]),
+        .clk(clk),
+        .rstn(rstn)
+    );
+
     ftoi ftoi0 (
         .x(arg1),
         .y(res32_ftoi),
@@ -141,8 +177,8 @@ module fpu (
         end else begin
             if (state == STWAIT) begin 
                 if (ready) begin
-                    if (~(operation == OPMOV || operation == OPSET || operation == OPGET)) begin
-                        state <= STEXEC;
+                    if (~(operation == OPFMOV || operation == OPSET || operation == OPGET)) begin
+                        state <= mod_valid ? STWRITE : STEXEC;
                     end
                 end
             end else if (state == STEXEC) begin
@@ -156,30 +192,41 @@ module fpu (
     end
 
     always @(posedge clk) begin
+        rres32_fneg <= res32_fneg;
+        rres32_fabs <= res32_fabs;
+        rres32_fadd <= res32_fadd;
+        rres32_fsub <= res32_fsub;
+        rres32_fmul <= res32_fmul;
+        rres32_itof <= res32_itof;
+    end
+
+    always @(posedge clk) begin
         if (~rstn) begin
             for (i = 0; i < 32; i = i + 1) begin
                 register[i] <= 32'b0;
             end
         end else if (state == STWAIT) begin
-            if (operation == OPMOV) begin
+            if (operation == OPFMOV) begin
                 register[y] <= arg1;
             end else if (operation == OPSET) begin
                 register[y] <= in_data;
             end
             // nothing to do for get
         end else if (state == STWRITE) begin
-            if (valids[IDXFNEG]) begin
-                register[y] <= res32_fneg;
-            end else if (valids[IDXFADD]) begin
-                register[y] <= res32_fadd;
-            end else if (valids[IDXFSUB]) begin
-                register[y] <= res32_fsub;
-            end else if (valids[IDXFMUL]) begin
-                register[y] <= res32_fmul;
-            end else if (valids[IDXITOF]) begin
-                register[y] <= res32_itof;
+            if (operation == OPFNEG) begin
+                register[y] <= rres32_fneg;
+            end else if (operation == OPFABS) begin
+                register[y] <= rres32_fabs;
+            end else if (operation == OPFADD) begin
+                register[y] <= rres32_fadd;
+            end else if (operation == OPFSUB) begin
+                register[y] <= rres32_fsub;
+            end else if (operation == OPFMUL) begin
+                register[y] <= rres32_fmul;
+            end else if (operation == OPITOF) begin
+                register[y] <= rres32_itof;
             end
-            // nothing to do for fclt, ftoi
+            // nothing to do for fclt, fcz, ftoi
         end
     end
 

@@ -1,5 +1,3 @@
-// とてもい�?�?減な実�?、多�?動かな�?
-
 module fmul (
     input wire [31:0] x1,
     input wire [31:0] x2,
@@ -11,7 +9,7 @@ module fmul (
 
     assign valid = ready; // とりあえず
 
-    // 浮動小数を�?解
+    // 浮動小数を分解
     wire s1 = x1[31];
     wire s2 = x2[31];
     wire [7:0] e1 = x1[30:23];
@@ -19,7 +17,7 @@ module fmul (
     wire [22:0] m1 = x1[22:0];
     wire [22:0] m2 = x2[22:0];
 
-    wire [47:0] mmuled = $unsigned({1'b1, x1}) * $unsigned({1'b1, x2}); // 非正規化数は+/-0とみな�?
+    wire [47:0] mmuled = $unsigned({1'b1, m1}) * $unsigned({1'b1, m2}); // 非正規化数は+/-0とみなす
     wire [24:0] mround_ukcarry = {1'b0, mmuled[46:23]} + {24'b0, mmuled[22]};
 
     wire carry = mmuled[47] || mround_ukcarry[23];

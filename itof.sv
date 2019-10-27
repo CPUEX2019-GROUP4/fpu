@@ -20,7 +20,7 @@ module itof (
     wire [24:0] m_rounded = m_unround[32:8] + {24'b0, m_unround[7]};
     wire [22:0] m = abs_x == 32'b0 ? 23'b0 : (m_rounded[24] ? m_rounded[23:1] : m_rounded[22:0]);
 
-    wire [7:0] e = abs_x == 32'b0 ? 8'b0 : (8'd31 - {3'b0, m_shift} + {7'b0, m_rounded[24]});
+    wire [7:0] e = abs_x == 32'b0 ? 8'b0 : (8'd158 - {3'b0, m_shift} + {7'b0, m_rounded[24]});
 
     wire s = x[31];
 

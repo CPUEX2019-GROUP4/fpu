@@ -9,7 +9,7 @@
 
 ## 引数
 - x1, x2
-    - operation の引数のレジスタ番号
+    - operation の引数のレジスタ番号。引数が1つの場合は x1 を使う。
 - y
     - operation の結果が格納されるレジスタ番号
 - operation
@@ -26,3 +26,32 @@
 - 非正規化数は 0 とみなす。
 - オーバーフローなどの例外はない。
 - 丸めは現在のところ単純な0捨1入。
+
+## 命令
+### opecode = 010001 のもの
+|処理|operation|
+|:--|:--:|
+|fneg|010000|
+|fabs|000101|
+|fadd|000000|
+|fsub|000001|
+|fmul|000010|
+|fclt|100000|
+|fcz|101000|
+|fmov|000110|
+|(floor)|001111|
+
+- y <- rd, x1 <- ra, x2 <- rb とすればよいはず (in_data は使わない)
+
+### opecode = 010001 でないもの
+|処理|operation|
+|:--|:--:|
+|ftoi|111000|
+|itof|111001|
+|set|111110|
+|get|111111|
+
+- ftoi: out_data32 <- float_to_int(register[x1])
+- itof: register[y] <- int_to_float(in_data)
+- set: register[y] <- in_data
+- get: out_data32 <- register[x1]
