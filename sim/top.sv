@@ -6,8 +6,8 @@ module top ();
     reg [4:0] y;
     reg [5:0] operation;
     reg [31:0] in_data;
-    wire out_data1;
-    wire [31:0] out_data32;
+    wire cond;
+    wire [31:0] out_data;
     reg ready;
     wire valid;
     reg clk;
@@ -21,8 +21,8 @@ module top ();
         .y(y),
         .operation(operation),
         .in_data(in_data),
-        .out_data1(out_data1),
-        .out_data32(out_data32),
+        .cond(cond),
+        .out_data(out_data),
         .ready(ready),
         .valid(valid),
         .clk(clk),
@@ -53,14 +53,23 @@ module top ();
     always @(posedge clk) begin
         if (i == 5) begin
             operation <= 6'b111110;
-            in_data <= 32'hc0490fcf;
+            in_data <= 32'h4007f559; // 2.12435
             y <= 5'd0;
             ready <= 1;
-        // end else if (i == 15) begin
-        //     operation <= 6'b010000;
-        //     x1 <= 5'd2;
-        //     y <= 5'd3;
-        //     ready <= 1;
+        end else if (i == 15) begin
+            operation <= 6'b111110;
+            in_data <= 32'h3fac2f83; // 1.3452
+            y <= 5'd1;
+            ready <= 1;
+        end else if (i == 25) begin
+            operation <= 6'b101000;
+            x1 <= 5'd0;
+            ready <= 1;
+        end else if (i == 35) begin
+            operation <= 6'b100000;
+            x1 <= 5'd1;
+            x2 <= 5'd0;
+            ready <= 1;
         // end else if (i == 15) begin
         //     operation <= 6'b111001;
         //     y <= 5'd0;
@@ -77,12 +86,12 @@ module top ();
         //     x2 <= 5'd0;
         //     y <= 5'd2;
         //     ready <= 1;
-        end else if (i == 35) begin
-            operation <= 6'b111101;
-            x1 <= 5'd0;
-            y <= 5'd1;
-            in_data <= 32'h93cd9394;
-            ready <= 1;
+        // end else if (i == 35) begin
+        //     operation <= 6'b111101;
+        //     x1 <= 5'd0;
+        //     y <= 5'd1;
+        //     in_data <= 32'h93cd9394;
+        //     ready <= 1;
         // end else if (i == 25) begin
         //     operation <= 6'b111001;
         //     y <= 5'd3;

@@ -14,6 +14,6 @@ module fclt (
     wire [30:0] em1 = x1[30:0];
     wire [30:0] em2 = x2[30:0];
 
-    assign y = (s1 && ~s2) || (s1 && s2 && em1 <= em2) || (~s1 && ~s2 && em1 >= em2);
+    assign y = (s1 && ~s2) || (s1 && s2 && em1 >= em2) || (~s1 && ~s2 && em1 <= em2);
 
 endmodule

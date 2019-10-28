@@ -4,7 +4,7 @@
 1. ready を立てる。
     - x1, x2, y, operation, in_data を設定する。valid が立つまで変えてはならない。必要のないものは適当な値でよい。
 1. valid が立つ。
-    - out_data1, out_data32 に値が返ってくる。返ってきた値は直ちに保存されなければならない。
+    - out_data に値が返ってくる。返ってきた値は直ちに保存されなければならない。
 1. ready を直ちに下ろす。
 
 ## 引数
@@ -16,9 +16,9 @@
     - 命令。opecode = 010001 のときは「機能」の値を渡す。opecode = 010001 でないときは処理に応じて定められた値を渡す。
 - in_data
     - cpu からの入力データ。itof の int、load の値など。
-- out_data1
-    - cpu への 1bit 出力データ。fclt の結果など。
-- out_data32
+- cond
+    - fpu の条件レジスタの値。fclt の結果など。fc~ の命令が実行されて valid が立った次のクロックから、別の fc~ の命令が実行のために ready を立てたクロックまで有効。bc1t, bc1f はこの値を読んで条件分岐をする。
+- out_data
     - cpu への 32bit 出力データ。ftoi の int、store の値など。
 
 ## 演算
@@ -52,8 +52,8 @@
 |set|111110|
 |get|111111|
 
-- ftoi: out_data32 <- float_to_int(register[x1])
+- ftoi: out_data <- float_to_int(register[x1])
 - itof: register[y] <- int_to_float(in_data)
 - fori: register[y] <- register[x1] | in_data
 - set: register[y] <- in_data
-- get: out_data32 <- register[x1]
+- get: out_data <- register[x1]

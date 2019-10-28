@@ -4,8 +4,8 @@ module fpu (
     input wire [4:0] y,
     input wire [5:0] operation,
     input wire [31:0] in_data,
-    output wire out_data1,
-    output wire [31:0] out_data32,
+    output wire cond,
+    output wire [31:0] out_data,
     input wire ready,
     output wire valid,
     input wire clk,
@@ -43,6 +43,7 @@ module fpu (
     localparam [2:0] STWRITE = 3'b001;
 
     reg [31:0] register [0:31];
+    reg cond_reg;
 
     reg [2:0] state;
 
@@ -82,9 +83,8 @@ module fpu (
     assign valid = ready && (state == STWRITE
         || operation == OPFMOV || operation == OPSET || operation == OPGET || operation == OPFORI
         || (mod_valid && (operation == OPFCLT || operation == OPFCZ || operation == OPFTOI)));
-    assign out_data1 = operation == OPFCLT ? res1_fclt
-        : (operation == OPFCZ ? res1_fcz : 'x);
-    assign out_data32 = operation == OPGET ? arg1
+    assign cond = cond_reg;
+    assign out_data = operation == OPGET ? arg1
         : (operation == OPFTOI ? res32_ftoi : 'x);
 
     fneg fneg0 (
@@ -200,6 +200,16 @@ module fpu (
         rres32_fsub <= res32_fsub;
         rres32_fmul <= res32_fmul;
         rres32_itof <= res32_itof;
+    end
+
+    always @(posedge clk) begin
+        if (mod_valid) begin
+            if (operation == OPFCLT) begin
+                cond_reg <= res1_fclt;
+            end else if (operation == OPFCZ) begin
+                cond_reg <= res1_fcz;
+            end
+        end
     end
 
     always @(posedge clk) begin
