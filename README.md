@@ -32,6 +32,7 @@ fpu.sv の fpu がメイン
 ## 命令
 ### opecode = 010001 のもの
 括弧付きは未実装
+
 |処理|operation|
 |:--|:--:|
 |fneg|010000|
@@ -49,6 +50,7 @@ fpu.sv の fpu がメイン
 - y <- rd, x1 <- ra, x2 <- rb とすればよいはず (in_data, out_data は使わない)
 
 ### opecode = 010001 でないもの
+
 |処理|operation|
 |:--|:--:|
 |ftoi|111000|
