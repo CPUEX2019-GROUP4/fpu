@@ -1,5 +1,7 @@
 # fpu
 
+fpu.sv の fpu がメイン
+
 ## 動作
 1. ready を立てる。
     - x1, x2, y, operation, in_data を設定する。valid が立つまで変えてはならない。必要のないものは適当な値でよい。
@@ -29,6 +31,7 @@
 
 ## 命令
 ### opecode = 010001 のもの
+括弧付きは未実装
 |処理|operation|
 |:--|:--:|
 |fneg|010000|
@@ -39,9 +42,11 @@
 |fclt|100000|
 |fcz|101000|
 |fmv|000110|
+|sqrt_init|110000|
+|finv_init|110001|
 |(floor)|001111|
 
-- y <- rd, x1 <- ra, x2 <- rb とすればよいはず (in_data は使わない)
+- y <- rd, x1 <- ra, x2 <- rb とすればよいはず (in_data, out_data は使わない)
 
 ### opecode = 010001 でないもの
 |処理|operation|

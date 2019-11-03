@@ -12,7 +12,7 @@ typedef union bits {
 int main(int argc, char** argv) {
     char buf[100];
     bits_t bits;
-    enum Mode mode = FLOAT_TO_UINT;;
+    enum Mode mode = FLOAT_TO_UINT;
 
     while (1) {
         int ret = scanf("%99s", buf);

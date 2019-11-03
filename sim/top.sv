@@ -53,23 +53,60 @@ module top ();
     always @(posedge clk) begin
         if (i == 5) begin
             operation <= 6'b111110;
-            in_data <= 32'h4007f559; // 2.12435
+            in_data <= 32'h3f000000; // 0.5
             y <= 5'd0;
             ready <= 1;
         end else if (i == 15) begin
             operation <= 6'b111110;
-            in_data <= 32'h3fac2f83; // 1.3452
+            in_data <= 32'h3e624dd2; // 0.221
             y <= 5'd1;
             ready <= 1;
         end else if (i == 25) begin
-            operation <= 6'b101000;
-            x1 <= 5'd0;
+            operation <= 6'b111110;
+            in_data <= 32'hbe999999; // -0.3
+            y <= 5'd2;
             ready <= 1;
         end else if (i == 35) begin
-            operation <= 6'b100000;
-            x1 <= 5'd1;
-            x2 <= 5'd0;
+            operation <= 6'b111110;
+            in_data <= 32'h3fe089a0; // 1.7542
+            y <= 5'd3;
             ready <= 1;
+        end else if (i == 55) begin
+            operation <= 6'b110001;
+            x1 <= 5'd0;
+            y <= 5'd4;
+            ready <= 1;
+        end else if (i == 65) begin
+            operation <= 6'b110001;
+            x1 <= 5'd1;
+            y <= 5'd4;
+            ready <= 1;
+        end else if (i == 75) begin
+            operation <= 6'b110001;
+            x1 <= 5'd2;
+            y <= 5'd4;
+            ready <= 1;
+        end else if (i == 85) begin
+            operation <= 6'b110001;
+            x1 <= 5'd3;
+            y <= 5'd4;
+            ready <= 1;
+        // end else if (i == 55) begin
+        //     operation <= 6'b111000;
+        //     x1 <= 5'd0;
+        //     ready <= 1;
+        // end else if (i == 65) begin
+        //     operation <= 6'b111000;
+        //     x1 <= 5'd1;
+        //     ready <= 1;
+        // end else if (i == 75) begin
+        //     operation <= 6'b111000;
+        //     x1 <= 5'd2;
+        //     ready <= 1;
+        // end else if (i == 85) begin
+        //     operation <= 6'b111000;
+        //     x1 <= 5'd3;
+        //     ready <= 1;
         // end else if (i == 15) begin
         //     operation <= 6'b111001;
         //     y <= 5'd0;
@@ -97,16 +134,21 @@ module top ();
         //     y <= 5'd3;
         //     in_data <= 32'h00000312;
         //     ready <= 1;
-        end else if (i == 45) begin
-            operation <= 6'b111000;
-            x1 <= 5'd2;
-            ready <= 1;
+        // end else if (i == 45) begin
+        //     operation <= 6'b111000;
+        //     x1 <= 5'd2;
+        //     ready <= 1;
         // end else if (i == 45) begin
         //     operation <= 6'b111111;
         //     x1 <= 5'd2;
         //     ready <= 1;
         end else if (valid) begin
             ready <= 0;
+            x1 <= 'x;
+            x2 <= 'x;
+            y <= 'x;
+            operation <= 'x;
+            in_data <= 'x;
         end
         i++;
     end
