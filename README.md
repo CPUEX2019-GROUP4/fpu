@@ -1,6 +1,6 @@
 # fpu
 
-fpu.sv の fpu がメイン
+fpu/fpu.sv の fpu がメイン。コアにつなぐときは、fpu 以下のすべてのファイルを取り込む。
 
 ## 動作
 1. ready を立てる。
