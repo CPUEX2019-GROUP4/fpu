@@ -58,13 +58,6 @@ cos_taylor_term :: Float -> Float -> Int -> Float
 cos_taylor_term x prev i =
     -prev * x * x / (2 * (fromIntegral i) * (2 * (fromIntegral i) - 1))
 
-atan_taylor_term_0 :: Float -> Float
-atan_taylor_term_0 x = x
-
-atan_taylor_term :: Float -> Float -> Int -> Float
-atan_taylor_term x prev i =
-    -prev * x * x * (2 * (fromIntegral i) - 1) / (2 * (fromIntegral i) + 1)
-
 taylor :: Float -> Int -> Float -> (Float -> Float -> Int -> Float) -> Float
 taylor x n init term_iter =
     let inner i prev acc =
@@ -200,16 +193,20 @@ matan x =
                 (x, False)
         (lim_r2m1_x, trans) =
             if abs_x > msqrt 2 + 1 then
-            -- if abs_x > 2.4375 then
                 (mfinv abs_x, 2)
             else if abs_x > msqrt 2 - 1 then
-            -- else if abs_x > 0.4375 then
                 ((1 - abs_x) / (1 + abs_x), 1)
             else
                 (abs_x, 0)
         lim_r2m1_atan =
-            taylor lim_r2m1_x atan_loop_count
-                (atan_taylor_term_0 lim_r2m1_x) atan_taylor_term
+            let inner i xp acc =
+                    let xp' = -xp * lim_r2m1_x * lim_r2m1_x
+                        now = xp' / fromIntegral (2 * i + 1)
+                    in if i < atan_loop_count then
+                            inner (i + 1) xp' (acc + now)
+                        else
+                            acc
+            in inner 1 lim_r2m1_x lim_r2m1_x
         lim_pos_atan =
             if trans == 2 then
                 mpi / 2 - lim_r2m1_atan
