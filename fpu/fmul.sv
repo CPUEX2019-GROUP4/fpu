@@ -7,6 +7,7 @@ module fmul (
     input wire clk,
     input wire rstn );
 
+    assign valid = ready; // とりあえず
 
     // 浮動小数を分解
     wire s1 = x1[31];
@@ -31,20 +32,5 @@ module fmul (
 
     assign y[31] = s1 != s2;
     assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
-
-    assign valid = ready && state == 8'b10000000; // とりあえず
-    reg [7:0] state;
-
-    always @(posedge clk) begin
-        if (~rstn) begin
-            state <= 8'b00000001;
-        end else if (ready) begin
-            if (state == 8'b10000000) begin
-                state = 8'b00000001;
-            end else begin
-                state = (state << 1);
-            end
-        end
-    end
 
 endmodule
