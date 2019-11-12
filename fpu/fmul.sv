@@ -7,7 +7,6 @@ module fmul (
     input wire clk,
     input wire rstn );
 
-    assign valid = ready; // とりあえず
 
     // 浮動小数を分解
     wire s1 = x1[31];
@@ -20,7 +19,7 @@ module fmul (
     wire [47:0] mmuled = $unsigned({1'b1, m1}) * $unsigned({1'b1, m2}); // 非正規化数は+/-0とみなす
     wire [24:0] mround_ukcarry = {1'b0, mmuled[46:23]} + {24'b0, mmuled[22]};
 
-    wire carry = mmuled[47] || mround_ukcarry[23];
+    wire carry = mmuled[47] || mround_ukcarry[24];
 
     wire [22:0] mlast = mmuled[47] ? (mmuled[46:24] + {22'b0, mmuled[23]})
         : (mround_ukcarry[24] ? mround_ukcarry[23:1] : mround_ukcarry[22:0]);
@@ -32,5 +31,20 @@ module fmul (
 
     assign y[31] = s1 != s2;
     assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
+
+    assign valid = ready && state == 8'b10000000; // とりあえず
+    reg [7:0] state;
+
+    always @(posedge clk) begin
+        if (~rstn) begin
+            state <= 8'b00000001;
+        end else if (ready) begin
+            if (state == 8'b10000000) begin
+                state = 8'b00000001;
+            end else begin
+                state = (state << 1);
+            end
+        end
+    end
 
 endmodule
