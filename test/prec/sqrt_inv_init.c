@@ -38,8 +38,9 @@ float sqrt_inv_init(float f) {
 
 float msqrt(float x, float init) {
     float t = init;
+    float hx = 0.5 * x;
     for (int i = 0; i < SQRT_LOOP_COUNT; i++) {
-        t = 0.5 * t * (3 - x * t * t);
+        t = t * (1.5 - hx * t * t);
     }
     return t * x;
 }
