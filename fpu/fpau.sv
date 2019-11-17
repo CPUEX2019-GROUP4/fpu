@@ -5,7 +5,7 @@ module fpau (
     input wire [31:0] x2,
     output wire [31:0] y32,
     output wire y1,
-    input wire [5:0] operation,
+    input wire [`FPU_OP_WIDTH-1:0] operation,
     input wire ready,
     output wire valid,
     input wire clk,

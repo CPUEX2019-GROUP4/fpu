@@ -21,7 +21,7 @@
 `define FPU_OPSET       (`FPU_OP_WIDTH'b111110)
 `define FPU_OPGET       (`FPU_OP_WIDTH'b111111)
 
-`define FPU_REG_WIDTH 5
-`define FPU_REG_COUNT (2 ** `FPU_REG_WIDTH)
+`define FPU_REG_ADDR_WIDTH 5
+`define FPU_REG_COUNT (2 ** `FPU_REG_ADDR_WIDTH)
 
 `endif
