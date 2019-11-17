@@ -18,12 +18,12 @@ module fadd (
     wire [22:0] m2 = x2[22:0];
 
     // 2
-    wire [24:0] m1a = (e1 == 8'b0) ? {2'b0, m1} : {2'b1, m1};
-    wire [24:0] m2a = (e2 == 8'b0) ? {2'b0, m2} : {2'b1, m2};
+    wire [24:0] m1a = {2'b1, m1};
+    wire [24:0] m2a = {2'b1, m2};
 
     // 3
-    wire [7:0] e1a = (e1 == 8'b0) ? 8'b1 : e1;
-    wire [7:0] e2a = (e2 == 8'b0) ? 8'b1 : e2;
+    wire [7:0] e1a = e1;
+    wire [7:0] e2a = e2;
 
     // 4 -
     wire [7:0] e2ai = ~e2a;
@@ -65,9 +65,9 @@ module fadd (
     wire [7:0] esi = es + 1;
 
     // 15 -
-    wire [7:0] eyd = (mye[26] == 1'b1) ? ((esi == 8'd255) ? 8'd255 : esi) : es;
-    wire [26:0] myd = (mye[26] == 1'b1) ? ((esi == 8'd255) ? {2'b01, 25'b0} : (mye >> 1)) : mye;
-    wire stck = (mye[26] == 1'b1) ? ((esi == 8'd255) ? 1'b0 : (tstck | mye[0])) : tstck;
+    wire [7:0] eyd = (mye[26] == 1'b1) ? esi : es;
+    wire [26:0] myd = (mye[26] == 1'b1) ? (mye >> 1) : mye;
+    wire stck = (mye[26] == 1'b1) ? (tstck | mye[0]) : tstck;
 
     // 16 -
     wire [4:0] se = myd[25] == 1'b1 ? 5'd0:
@@ -102,7 +102,7 @@ module fadd (
     wire [8:0] eyf = {1'b0, eyd} < {4'b0, se} ? 0 : {1'b0, eyd} - {4'b0, se};
 
     // 18 -
-    wire [7:0] eyr = (eyf > 9'b0) ? eyf[7:0] : 8'b0;
+    wire [7:0] eyr = eyf[7:0];
     wire [26:0] myf = (eyf > 9'b0) ? (myd << se) : (myd << (eyd[4:0] - 1));
 
     // 19 -
@@ -115,20 +115,11 @@ module fadd (
 
     // 21 -
     wire [7:0] ey = (myr[24] == 1'b1) ? eyri : ((myr[23:0] == 24'b0) ? 8'b0 : eyr);
-    wire [22:0] my = (myr[24] == 1'b1) ? 23'b0 : ((myr[23:0] == 24'b0) ? 23'b0 : myr[22:0]);
+    wire [22:0] my = (myr[24] == 1'b1) ? 23'b0 : myr[22:0];
 
     // 22 -
-    wire sy = (ey == 8'b0 && my == 23'b0) ? (s1 & s2) : ss;
+    wire sy = ss;
 
-    // 23 -
-    wire nzm1 = |(m1[22:0]);
-    wire nzm2 = |(m2[22:0]);
-    assign y = (e1 == 8'd255 && e2 != 8'd255) ? {s1, 8'd255, nzm1, m1[21:0]}
-        : ((e2 == 8'd255 && e1 != 8'd255) ? {s2, 8'd255, nzm2, m2[21:0]}
-        : ((e1 == 8'd255 && e2 == 8'd255 && nzm2) ? {s2, 8'd255, 1'b1, m2[21:0]}
-        : ((e1 == 8'd255 && e1 == 8'd255 && nzm1) ? {s1, 8'd255, 1'b1, m1[21:0]}
-        : ((e1 == 8'd255 && e2 == 8'd255 && s1 == s2) ? {s1, 8'd255, 23'b0}
-        : ((e1 == 8'd255 && e2 == 8'd255) ? {1'b1, 8'd255, 1'b1, 22'b0}
-        : {sy, ey, my})))));
+    assign y = e1 == 8'b0 ? x2 : (e2 == 8'b0 ? x1 : {sy, ey, my});
 
 endmodule
