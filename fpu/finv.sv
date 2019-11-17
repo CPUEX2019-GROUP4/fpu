@@ -1,3 +1,5 @@
+// a lot of bugs!!
+
 module finv (
     input wire [31:0] x,
     output wire [31:0] y,
