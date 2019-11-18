@@ -23,8 +23,9 @@ module fpau (
     localparam IDXITOF  = 9;
     localparam IDXSQRT_INIT = 10;
     localparam IDXFINV_INIT = 11;
-    localparam IDXFOR   = 12;
-    localparam IDXCOUNT = 13;
+    localparam IDXSQRT_INV_INIT = 12;
+    localparam IDXFOR   = 13;
+    localparam IDXCOUNT = 14;
 
     wire res1_fclt;
     wire res1_fcz;
@@ -38,6 +39,7 @@ module fpau (
     wire [31:0] res32_itof;
     wire [31:0] res32_sqrt_init;
     wire [31:0] res32_finv_init;
+    wire [31:0] res32_sqrt_inv_init;
     wire [31:0] res32_for;
 
     wire ready_fneg = ready && operation == `FPU_OPFNEG;
@@ -52,6 +54,7 @@ module fpau (
     wire ready_itof = ready && operation == `FPU_OPITOF;
     wire ready_sqrt_init = ready && operation == `FPU_OPSQRT_INIT;
     wire ready_finv_init = ready && operation == `FPU_OPFINV_INIT;
+    wire ready_sqrt_inv_init = ready && operation == `FPU_OPSQRT_INV_INIT;
     wire ready_for = ready && operation == `FPU_OPFOR;
 
     wire [0:IDXCOUNT - 1] valids;
@@ -69,6 +72,7 @@ module fpau (
         operation == `FPU_OPITOF ? res32_itof :
         operation == `FPU_OPSQRT_INIT ? res32_sqrt_init :
         operation == `FPU_OPFINV_INIT ? res32_finv_init :
+        operation == `FPU_OPSQRT_INV_INIT ? res32_sqrt_inv_init :
         operation == `FPU_OPFOR ? res32_for : 'x;
     assign y1 =
         operation == `FPU_OPFCLT ? res1_fclt :
@@ -182,6 +186,15 @@ module fpau (
         .y(res32_finv_init),
         .ready(ready_finv_init),
         .valid(valids[IDXFINV_INIT]),
+        .clk(clk),
+        .rstn(rstn)
+    );
+
+    sqrt_inv_init sqrt_inv_init0 (
+        .x(x1),
+        .y(res32_sqrt_inv_init),
+        .ready(ready_sqrt_inv_init),
+        .valid(valids[IDXSQRT_INV_INIT]),
         .clk(clk),
         .rstn(rstn)
     );

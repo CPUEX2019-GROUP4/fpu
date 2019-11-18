@@ -89,8 +89,9 @@ module fpu (
                 || operation == `FPU_OPFADD || operation == `FPU_OPFSUB
                 || operation == `FPU_OPFMUL || operation == `FPU_OPFINV
                 || operation == `FPU_OPITOF || operation == `FPU_OPSQRT_INIT
-                || operation == `FPU_OPFINV_INIT || operation == `FPU_OPFMV
-                || operation == `FPU_OPFORI || operation == `FPU_OPSET;
+                || operation == `FPU_OPFINV_INIT || operation == `FPU_OPSQRT_INV_INIT
+                || operation == `FPU_OPFMV || operation == `FPU_OPFORI
+                || operation == `FPU_OPSET;
             if (write_enable1) begin
                 cond_reg <= res1;
             end
