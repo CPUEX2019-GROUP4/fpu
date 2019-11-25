@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "repl.h"
 
 #define MINPREC 6
 #define MOUTPREC 6
@@ -45,7 +46,7 @@ float mfinv(float x, float init) {
     return t;
 }
 
-int main(void) {
+void inspect_prec(void) {
     float diff_max = 0;
     for (float f = 1; f < 2; f += 0x1p-23) {
         float init = finv_init(f);
@@ -54,5 +55,9 @@ int main(void) {
         diff_max = diff > diff_max ? diff : diff_max;
     }
     printf("%a\n", diff_max);
-    return 0;
+}
+
+int main(int argc, char** argv) {
+    int ret = init_with_arg(argc, argv, finv_init, inspect_prec);
+    return ret;
 }

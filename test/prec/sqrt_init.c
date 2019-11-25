@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "repl.h"
 
 #define MINPREC 6
 #define MOUTPREC 6
@@ -45,7 +46,7 @@ float msqrt(float x, float init) {
     return t;
 }
 
-int main(void) {
+void inspect_prec(void) {
     float diff_max1 = 0;
     for (float f = 1; f < 2; f += 0x1p-23) {
         float init = sqrt_init(f);
@@ -61,5 +62,9 @@ int main(void) {
         diff_max2 = diff > diff_max2 ? diff : diff_max2;
     }
     printf("%a %a\n", diff_max1, diff_max2);
-    return 0;
+}
+
+int main(int argc, char** argv) {
+    int ret = init_with_arg(argc, argv, sqrt_init, inspect_prec);
+    return ret;
 }
