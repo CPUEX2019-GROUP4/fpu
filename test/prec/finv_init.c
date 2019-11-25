@@ -25,6 +25,7 @@ uint32_t finv_init_u(float f) {
     b.f = f;
     uint32_t u = b.u;
     uint32_t s = u & 0x80000000, e = (u >> 23) & 0x000000ff, m = u & 0x007fffff;
+    if (e == 0) return 0;
     uint32_t m_ = finv_init_m(m);
     uint32_t e_ = ((253 - e) & 0x000000ff) + (m & MUSE(MINPREC) ? 0 : 1);
     uint32_t u_ = s | (e_ << 23) | m_;

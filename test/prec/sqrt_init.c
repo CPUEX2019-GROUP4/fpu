@@ -25,6 +25,7 @@ uint32_t sqrt_init_u(float f) {
     b.f = f;
     uint32_t u = b.u;
     uint32_t s = u & 0x80000000, e = (u >> 23) & 0x000000ff, m = u & 0x007fffff;
+    if (e == 0) return 0;
     uint32_t m_ = sqrt_init_m(e & 1, m);
     uint32_t e_ = ((e - 1) >> 1) + 64;
     uint32_t u_ = s | (e_ << 23) | m_;

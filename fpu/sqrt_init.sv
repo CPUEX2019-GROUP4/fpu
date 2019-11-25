@@ -163,6 +163,6 @@ module sqrt_init (
 
     assign ym[16:0] = '0;
 
-    assign y = {ys, ye, ym};
+    assign y = e == '0 ? 32'b0 : {ys, ye, ym};
 
 endmodule
