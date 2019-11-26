@@ -1,4 +1,5 @@
 `timescale 1ns / 100ps
+`include "fpu_params.h"
 
 module top ();
     reg [4:0] x1;
@@ -44,104 +45,137 @@ module top ();
         rstn <= 0;
         ready <= 0;
         #100000 rstn <= 1;
-        #10000000 $finish;
+        #20000000 $finish;
     end
 
     always #50000
         clk <= ~clk;
 
     always @(posedge clk) begin
-        if (i == 5) begin
-            operation <= 6'b111110;
-            in_data <= 32'h3f000000; // 0.5
+        if (i == 0) begin
+        end else if (i == 5) begin
+            operation <= `FPU_OPSET;
+            in_data <= 32'd0; // 0
             y <= 5'd0;
             ready <= 1;
-        end else if (i == 15) begin
-            operation <= 6'b111110;
-            in_data <= 32'h3e624dd2; // 0.221
+        end else if (i == 7) begin
+            operation <= `FPU_OPSET;
+            in_data <= 32'h3f800000; // 1
             y <= 5'd1;
             ready <= 1;
-        end else if (i == 25) begin
-            operation <= 6'b111110;
-            in_data <= 32'hbe999999; // -0.3
+        end else if (i == 10) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
             y <= 5'd2;
             ready <= 1;
+        end else if (i == 12) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd1;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 14) begin
+            operation <= `FPU_OPSQRT_INIT;
+            x1 <= 5'd0;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 15) begin
+            operation <= `FPU_OPSQRT_INIT;
+            x1 <= 5'd1;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 16) begin
+            operation <= `FPU_OPFINV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 17) begin
+            operation <= `FPU_OPFINV_INIT;
+            x1 <= 5'd1;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 25) begin
+            operation <= `FPU_OPSET;
+            in_data <= 32'h40000000; // 2
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 26) begin
+            operation <= `FPU_OPFCLT;
+            x1 <= 5'd0;
+            x2 <= 5'd1;
+            ready <= 1;
+        end else if (i == 30) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
+            ready <= 1;
+        end else if (i == 32) begin
+            operation <= `FPU_OPSET;
+            in_data <= 32'h40800000; // 4
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 33) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
+            ready <= 1;
         end else if (i == 35) begin
-            operation <= 6'b111110;
-            in_data <= 32'h3fe089a0; // 1.7542
-            y <= 5'd3;
+            operation <= `FPU_OPSET;
+            in_data <= 32'h3fc00000; // 1.5
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 40) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
+            ready <= 1;
+        end else if (i == 45) begin
+            operation <= `FPU_OPSET;
+            in_data <= 32'h3fd9999a; // 1.7
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 50) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
+            ready <= 1;
+        end else if (i == 54) begin
+            operation <= `FPU_OPFCZ;
+            x1 <= 5'd0;
             ready <= 1;
         end else if (i == 55) begin
-            operation <= 6'b110001;
+            operation <= `FPU_OPSET;
+            in_data <= 32'd0; // 0
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 56) begin
+            operation <= `FPU_OPFCZ;
             x1 <= 5'd0;
-            y <= 5'd4;
+            ready <= 1;
+        end else if (i == 60) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
             ready <= 1;
         end else if (i == 65) begin
-            operation <= 6'b110001;
-            x1 <= 5'd1;
-            y <= 5'd4;
+            operation <= 6'b111110;
+            in_data <= 32'h3e624dd2; // 0.221
+            y <= 5'd0;
+            ready <= 1;
+        end else if (i == 70) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
             ready <= 1;
         end else if (i == 75) begin
-            operation <= 6'b110001;
-            x1 <= 5'd2;
-            y <= 5'd4;
+            operation <= 6'b111110;
+            in_data <= 32'h3fe089a0; // 1.7542
+            y <= 5'd0;
             ready <= 1;
-        end else if (i == 85) begin
-            operation <= 6'b110001;
-            x1 <= 5'd3;
-            y <= 5'd4;
+        end else if (i == 80) begin
+            operation <= `FPU_OPSQRT_INV_INIT;
+            x1 <= 5'd0;
+            y <= 5'd1;
             ready <= 1;
-        // end else if (i == 55) begin
-        //     operation <= 6'b111000;
-        //     x1 <= 5'd0;
-        //     ready <= 1;
-        // end else if (i == 65) begin
-        //     operation <= 6'b111000;
-        //     x1 <= 5'd1;
-        //     ready <= 1;
-        // end else if (i == 75) begin
-        //     operation <= 6'b111000;
-        //     x1 <= 5'd2;
-        //     ready <= 1;
-        // end else if (i == 85) begin
-        //     operation <= 6'b111000;
-        //     x1 <= 5'd3;
-        //     ready <= 1;
-        // end else if (i == 15) begin
-        //     operation <= 6'b111001;
-        //     y <= 5'd0;
-        //     in_data <= 32'd43;
-        //     ready <= 1;
-        // end else if (i == 25) begin
-        //     operation <= 6'b111001;
-        //     y <= 5'd1;
-        //     in_data <= 32'd14;
-        //     ready <= 1;
-        // end else if (i == 35) begin
-        //     operation <= 6'b000001;
-        //     x1 <= 5'd1;
-        //     x2 <= 5'd0;
-        //     y <= 5'd2;
-        //     ready <= 1;
-        // end else if (i == 35) begin
-        //     operation <= 6'b111101;
-        //     x1 <= 5'd0;
-        //     y <= 5'd1;
-        //     in_data <= 32'h93cd9394;
-        //     ready <= 1;
-        // end else if (i == 25) begin
-        //     operation <= 6'b111001;
-        //     y <= 5'd3;
-        //     in_data <= 32'h00000312;
-        //     ready <= 1;
-        // end else if (i == 45) begin
-        //     operation <= 6'b111000;
-        //     x1 <= 5'd2;
-        //     ready <= 1;
-        // end else if (i == 45) begin
-        //     operation <= 6'b111111;
-        //     x1 <= 5'd2;
-        //     ready <= 1;
         end else if (valid) begin
             ready <= 0;
             x1 <= 'x;
