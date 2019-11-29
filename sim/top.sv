@@ -64,7 +64,8 @@ module top ();
             y <= 5'd1;
             ready <= 1;
         end else if (i == 15) begin
-            operation <= `FPU_OPFMUL;
+            // operation <= `FPU_OPFMUL;
+            operation <= `FPU_OPFADD;
             x1 <= 5'd0;
             x2 <= 5'd1;
             y <= 5'd2;
@@ -81,7 +82,7 @@ module top ();
             ready <= 1;
         end else if (i == 35) begin
             operation <= `FPU_OPSET;
-            in_data <= 32'h3fc00000; // 1.5
+            in_data <= 32'hbfc00000; // -1.5
             y <= 5'd0;
             ready <= 1;
         end else if (i == 45) begin
@@ -90,7 +91,8 @@ module top ();
             y <= 5'd1;
             ready <= 1;
         end else if (i == 55) begin
-            operation <= `FPU_OPFMUL;
+            // operation <= `FPU_OPFMUL;
+            operation <= `FPU_OPFADD;
             x1 <= 5'd0;
             x2 <= 5'd1;
             y <= 5'd2;
@@ -106,7 +108,8 @@ module top ();
             y <= 5'd1;
             ready <= 1;
         end else if (i == 80) begin
-            operation <= `FPU_OPFMUL;
+            // operation <= `FPU_OPFMUL;
+            operation <= `FPU_OPFADD;
             x1 <= 5'd0;
             x2 <= 5'd1;
             y <= 5'd2;

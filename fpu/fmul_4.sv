@@ -34,7 +34,7 @@ module fmul (
     wire [23:0] m1_ext = {1'b1, m1};
     wire [23:0] m2_ext = {1'b1, m2};
 
-    wire [47:0] mmuled = {mul_hh, 36'b0} + {6'b0, mul_hl + mul_lh, 18'b0} + {12'b0, mul_ll};
+    wire [47:0] mmuled = {mul_h, 18'b0} + {6'b0, mul_l};
 
     wire [24:0] mround_ukcarry = {1'b0, mmuled[46:23]} + {24'b0, mmuled[22]};
 
@@ -51,30 +51,18 @@ module fmul (
     assign y[31] = s1 != s2;
     assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
 
-    wire [17:0] m1_low = m1_ext[17:0];
     wire [17:0] m2_low = m2_ext[17:0];
-    wire [5:0] m1_high = m1_ext[23:18];
     wire [5:0] m2_high = m2_ext[23:18];
 
-    reg [11:0] mul_hh;
-    reg [23:0] mul_hl;
-    reg [23:0] mul_lh;
-    reg [35:0] mul_ll;
+    reg [29:0] mul_h;
+    reg [41:0] mul_l;
 
     always @(posedge clk) begin
-        mul_hh <= $unsigned(m1_high) * $unsigned(m2_high);
+        mul_h <= $unsigned(m1_ext) * $unsigned(m2_high);
     end
 
     always @(posedge clk) begin
-        mul_hl <= $unsigned(m1_high) * $unsigned(m2_low);
-    end
-
-    always @(posedge clk) begin
-        mul_lh <= $unsigned(m1_low) * $unsigned(m2_high);
-    end
-
-    always @(posedge clk) begin
-        mul_ll <= $unsigned(m1_low) * $unsigned(m2_low);
+        mul_l <= $unsigned(m1_ext) * $unsigned(m2_low);
     end
 
 endmodule
