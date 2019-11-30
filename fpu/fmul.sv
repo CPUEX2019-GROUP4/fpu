@@ -14,8 +14,6 @@ module fmul (
     wire [23:0] m1_ext = {1'b1, m1};
     wire [23:0] m2_ext = {1'b1, m2};
 
-    wire [47:0] mmuled = {mul_h, 18'b0} + {6'b0, mul_l};
-
     wire [8:0] emuled = {1'b0, e1} + {1'b0, e2};
     wire [8:0] emuled_plus1 = emuled + 9'b1;
 
@@ -27,6 +25,8 @@ module fmul (
     wire [7:0] emuled_plus1_biased = emuled_plus1_biased_ext[7:0];
 
     // reg div
+
+    wire [47:0] mmuled = {mul_h, 18'b0} + {6'b0, mul_l};
 
     wire [24:0] mround_ukcarry = mmuled[23]
         ? mmuled[47:23] + {23'b0, mmuled[22]}
