@@ -1,12 +1,7 @@
 module itof (
     input wire [31:0] x,
     output wire [31:0] y,
-    input wire ready,
-    output wire valid,
-    input wire clk,
-    input wire rstn );
-
-    assign valid = ready; // とりあえず
+    input wire clk );
 
     wire [31:0] abs_x = x[31] ? (~x + 32'b1) : x;
 

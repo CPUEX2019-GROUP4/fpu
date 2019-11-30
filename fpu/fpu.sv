@@ -28,10 +28,10 @@ module fpu (
         operation == `FPU_OPITOF || operation == `FPU_OPSET ? in_data : 'x;
     wire [31:0] imm_arg2 =
         operation == `FPU_OPFORI ? in_data :
-        operation == `FPU_OPFMV || operation == `FPU_OPSET || operation == `FPU_OPGET ? '0 : 'x;
+        operation == `FPU_OPSET || operation == `FPU_OPGET ? '0 : 'x;
 
     wire use_imm_arg1 = operation == `FPU_OPITOF || operation == `FPU_OPSET;
-    wire use_imm_arg2 = operation == `FPU_OPFORI || operation == `FPU_OPFMV
+    wire use_imm_arg2 = operation == `FPU_OPFORI
         || operation == `FPU_OPSET || operation == `FPU_OPGET;
 
     reg [31:0] rarg1;
@@ -50,7 +50,7 @@ module fpu (
     reg wb_fpau_valid;
 
     wire [`FPU_OP_WIDTH-1:0] fpau_op =
-        operation == `FPU_OPFMV || operation == `FPU_OPFORI || operation == `FPU_OPSET
+        operation == `FPU_OPFORI || operation == `FPU_OPSET
         || operation == `FPU_OPGET ? `FPU_OPFOR : operation;
 
     wire write_enable32 = wb_fpau_valid && wb_op_needs_wb32;

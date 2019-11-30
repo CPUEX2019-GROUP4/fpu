@@ -11,22 +11,6 @@ module fpau (
     input wire clk,
     input wire rstn );
 
-    localparam IDXFNEG  = 0;
-    localparam IDXFABS  = 1;
-    localparam IDXFADD  = 2;
-    localparam IDXFSUB  = 3;
-    localparam IDXFMUL  = 4;
-    localparam IDXFINV  = 5;
-    localparam IDXFCLT  = 6;
-    localparam IDXFCZ   = 7;
-    localparam IDXFTOI  = 8;
-    localparam IDXITOF  = 9;
-    localparam IDXSQRT_INIT = 10;
-    localparam IDXFINV_INIT = 11;
-    localparam IDXSQRT_INV_INIT = 12;
-    localparam IDXFOR   = 13;
-    localparam IDXCOUNT = 14;
-
     wire res1_fclt;
     wire res1_fcz;
     wire [31:0] res32_fneg;
@@ -41,26 +25,36 @@ module fpau (
     wire [31:0] res32_finv_init;
     wire [31:0] res32_sqrt_inv_init;
     wire [31:0] res32_for;
+    wire [31:0] res32_fmv;
 
-    wire ready_fneg = ready && operation == `FPU_OPFNEG;
-    wire ready_fabs = ready && operation == `FPU_OPFABS;
-    wire ready_fadd = ready && operation == `FPU_OPFADD;
-    wire ready_fsub = ready && operation == `FPU_OPFSUB;
-    wire ready_fmul = ready && operation == `FPU_OPFMUL;
-    wire ready_finv = ready && operation == `FPU_OPFINV;
-    wire ready_fclt = ready && operation == `FPU_OPFCLT;
-    wire ready_fcz  = ready && operation == `FPU_OPFCZ;
-    wire ready_ftoi = ready && operation == `FPU_OPFTOI;
-    wire ready_itof = ready && operation == `FPU_OPITOF;
-    wire ready_sqrt_init = ready && operation == `FPU_OPSQRT_INIT;
-    wire ready_finv_init = ready && operation == `FPU_OPFINV_INIT;
-    wire ready_sqrt_inv_init = ready && operation == `FPU_OPSQRT_INV_INIT;
-    wire ready_for = ready && operation == `FPU_OPFOR;
+    reg [4:0] state;
+    always @(posedge clk) begin
+        if (~rstn) begin
+            state <= 5'b00001;
+        end else if (valid) begin
+            state <= 5'b00001;
+        end else if (state == 5'b00001) begin
+            if (ready) begin
+                state <= (state << 1);
+            end
+        end else begin
+            state <= (state << 1);
+        end
+    end
 
-    wire [0:IDXCOUNT - 1] valids;
-    wire mod_valid = |valids;
+    wire op_clk1 = ~(op_clk2 || op_clk3 || op_clk4 || op_clk5);
+    wire op_clk2 = operation == `FPU_OPFMUL;
+    wire op_clk3 = operation == `FPU_OPFADD || operation == `FPU_OPFSUB;
+    wire op_clk4 = 1'b0;
+    wire op_clk5 = 1'b0;
 
-    assign valid = mod_valid;
+    assign valid = ready && (
+           (state == 5'b00001 && op_clk1)
+        || (state == 5'b00010 && op_clk2)
+        || (state == 5'b00100 && op_clk3)
+        || (state == 5'b01000 && op_clk4)
+        || (state == 5'b10000 && op_clk5));
+
     assign y32 =
         operation == `FPU_OPFNEG ? res32_fneg :
         operation == `FPU_OPFABS ? res32_fabs :
@@ -73,7 +67,8 @@ module fpau (
         operation == `FPU_OPSQRT_INIT ? res32_sqrt_init :
         operation == `FPU_OPFINV_INIT ? res32_finv_init :
         operation == `FPU_OPSQRT_INV_INIT ? res32_sqrt_inv_init :
-        operation == `FPU_OPFOR ? res32_for : 'x;
+        operation == `FPU_OPFOR ? res32_for :
+        operation == `FPU_OPFMV ? res32_fmv : 'x;
     assign y1 =
         operation == `FPU_OPFCLT ? res1_fclt :
         operation == `FPU_OPFCZ ? res1_fcz : 'x;
@@ -81,132 +76,86 @@ module fpau (
     fneg fneg0 (
         .x(x1),
         .y(res32_fneg),
-        .ready(ready_fneg),
-        .valid(valids[IDXFNEG]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fabs fabs0 (
         .x(x1),
         .y(res32_fabs),
-        .ready(ready_fabs),
-        .valid(valids[IDXFABS]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fadd fadd0 (
         .x1(x1),
         .x2(x2),
         .y(res32_fadd),
-        .ready(ready_fadd),
-        .valid(valids[IDXFADD]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fsub fsub0 (
         .x1(x1),
         .x2(x2),
         .y(res32_fsub),
-        .ready(ready_fsub),
-        .valid(valids[IDXFSUB]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fmul fmul0 (
         .x1(x1),
         .x2(x2),
         .y(res32_fmul),
-        .ready(ready_fmul),
-        .valid(valids[IDXFMUL]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     finv finv0 (
         .x(x1),
         .y(res32_finv),
-        .ready(ready_finv),
-        .valid(valids[IDXFINV]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fclt fclt0 (
         .x1(x1),
         .x2(x2),
         .y(res1_fclt),
-        .ready(ready_fclt),
-        .valid(valids[IDXFCLT]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     fcz fcz0 (
         .x(x1),
         .y(res1_fcz),
-        .ready(ready_fcz),
-        .valid(valids[IDXFCZ]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     ftoi ftoi0 (
         .x(x1),
         .y(res32_ftoi),
-        .ready(ready_ftoi),
-        .valid(valids[IDXFTOI]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     itof itof0 (
         .x(x1),
         .y(res32_itof),
-        .ready(ready_itof),
-        .valid(valids[IDXITOF]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     sqrt_init sqrt_init0 (
         .x(x1),
         .y(res32_sqrt_init),
-        .ready(ready_sqrt_init),
-        .valid(valids[IDXSQRT_INIT]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     finv_init finv_init0 (
         .x(x1),
         .y(res32_finv_init),
-        .ready(ready_finv_init),
-        .valid(valids[IDXFINV_INIT]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
     sqrt_inv_init sqrt_inv_init0 (
         .x(x1),
         .y(res32_sqrt_inv_init),
-        .ready(ready_sqrt_inv_init),
-        .valid(valids[IDXSQRT_INV_INIT]),
-        .clk(clk),
-        .rstn(rstn)
+        .clk(clk)
     );
 
-    ffor ffor0 (
-        .x1(x1),
-        .x2(x2),
-        .y(res32_for),
-        .ready(ready_for),
-        .valid(valids[IDXFOR]),
-        .clk(clk),
-        .rstn(rstn)
-    );
+    assign res32_for = x1 | x2;
+    assign res32_fmv = x1;
 
 endmodule

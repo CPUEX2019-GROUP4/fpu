@@ -2,27 +2,7 @@ module fmul (
     input wire [31:0] x1,
     input wire [31:0] x2,
     output wire [31:0] y,
-    input wire ready,
-    output wire valid,
-    input wire clk,
-    input wire rstn );
-
-    assign valid = state == 2'b10;
-
-    reg [1:0] state;
-    always @(posedge clk) begin
-        if (~rstn) begin
-            state <= 2'b01;
-        end else if (state == 2'b01) begin
-            if (ready) begin
-                state <= (state << 1);
-            end
-        end else if (state == 2'b10) begin
-            state <= 2'b01;
-        end else begin
-            state <= (state << 1);
-        end
-    end
+    input wire clk );
 
     wire s1 = x1[31];
     wire s2 = x2[31];

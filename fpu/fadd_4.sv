@@ -2,27 +2,7 @@ module fadd (
     input wire [31:0] x1,
     input wire [31:0] x2,
     output wire [31:0] y,
-    input wire ready,
-    output wire valid,
-    input wire clk,
-    input wire rstn );
-
-    assign valid = state == 3'b100;
-
-    reg [2:0] state;
-    always @(posedge clk) begin
-        if (~rstn) begin
-            state <= 3'b001;
-        end else if (state == 3'b001) begin
-            if (ready) begin
-                state <= (state << 1);
-            end
-        end else if (state == 3'b100) begin
-            state <= 3'b001;
-        end else begin
-            state <= (state << 1);
-        end
-    end
+    input wire clk );
 
     // 1
     wire s1 = x1[31];

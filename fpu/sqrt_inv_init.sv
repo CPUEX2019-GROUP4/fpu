@@ -145,12 +145,7 @@ endmodule
 module sqrt_inv_init (
     input wire [31:0] x,
     output wire [31:0] y,
-    input wire ready,
-    output wire valid,
-    input wire clk,
-    input wire rstn );
-
-    assign valid = ready;
+    input wire clk );
 
     wire s = x[31];
     wire [7:0] e = x[30:23];

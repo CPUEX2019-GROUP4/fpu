@@ -1,12 +1,7 @@
 module fcz (
     input wire [31:0] x,
     output wire y,
-    input wire ready,
-    output wire valid,
-    input wire clk,
-    input wire rstn );
-
-    assign valid = ready;
+    input wire clk );
 
     wire [7:0] e = x[30:23];
 

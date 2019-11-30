@@ -85,6 +85,11 @@ module top ();
             in_data <= 32'hbfc00000; // -1.5
             y <= 5'd0;
             ready <= 1;
+        end else if (i == 40) begin
+            operation <= `FPU_OPFMV;
+            x1 <= 5'd0;
+            y <= 5'd2;
+            ready <= 1;
         end else if (i == 45) begin
             operation <= `FPU_OPSET;
             in_data <= 32'h3fd9999a; // 1.7
