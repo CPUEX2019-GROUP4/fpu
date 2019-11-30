@@ -16,17 +16,27 @@ module fmul (
 
     wire [47:0] mmuled = {mul_h, 18'b0} + {6'b0, mul_l};
 
-    wire [24:0] mround_ukcarry = {1'b0, mmuled[46:23]} + {24'b0, mmuled[22]};
-
-    wire carry = mmuled[47] || mround_ukcarry[24];
-
-    wire [22:0] mlast = mmuled[47] ? (mmuled[46:24] + {22'b0, mmuled[23]})
-        : (mround_ukcarry[24] ? mround_ukcarry[23:1] : mround_ukcarry[22:0]);
-
     wire [8:0] emuled = {1'b0, e1} + {1'b0, e2};
-    wire [8:0] eext = emuled + {9'b0, carry};
-    wire [8:0] emuled_biased = eext <= 9'd127 ? 9'd0 : eext - 9'd127;
-    wire [7:0] elast = emuled_biased[7:0];
+    wire [8:0] emuled_plus1 = emuled + 9'b1;
+
+    wire [8:0] emuled_biased_ext = emuled <= 9'd127 ? 9'd0 : emuled - 9'd127;
+    wire [8:0] emuled_plus1_biased_ext =
+        emuled_plus1 <= 9'd127 ? 9'd0 : emuled_plus1 - 9'd127;
+
+    wire [7:0] emuled_biased = emuled_biased_ext[7:0];
+    wire [7:0] emuled_plus1_biased = emuled_plus1_biased_ext[7:0];
+
+    // reg div
+
+    wire [24:0] mround_ukcarry = mmuled[23]
+        ? mmuled[47:23] + {23'b0, mmuled[22]}
+        : mmuled[47:23];
+
+    wire carry = mround_ukcarry[24];
+
+    wire [22:0] mlast = carry ? mround_ukcarry[23:1] : mround_ukcarry[22:0];
+
+    wire [7:0] elast = carry ? emuled_plus1_biased : emuled_biased;
 
     assign y[31] = s1 != s2;
     assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
@@ -39,9 +49,6 @@ module fmul (
 
     always @(posedge clk) begin
         mul_h <= $unsigned(m1_ext) * $unsigned(m2_high);
-    end
-
-    always @(posedge clk) begin
         mul_l <= $unsigned(m1_ext) * $unsigned(m2_low);
     end
 
