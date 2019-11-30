@@ -11,7 +11,11 @@ module fmul (
     wire [22:0] m1 = x1[22:0];
     wire [22:0] m2 = x2[22:0];
 
-    wire [47:0] mmuled = $unsigned({1'b1, m1}) * $unsigned({1'b1, m2});
+    wire [23:0] m1_ext = {1'b1, m1};
+    wire [23:0] m2_ext = {1'b1, m2};
+
+    wire [47:0] mmuled = {mul_h, 18'b0} + {6'b0, mul_l};
+
     wire [24:0] mround_ukcarry = {1'b0, mmuled[46:23]} + {24'b0, mmuled[22]};
 
     wire carry = mmuled[47] || mround_ukcarry[24];
@@ -26,5 +30,19 @@ module fmul (
 
     assign y[31] = s1 != s2;
     assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
+
+    wire [17:0] m2_low = m2_ext[17:0];
+    wire [5:0] m2_high = m2_ext[23:18];
+
+    reg [29:0] mul_h;
+    reg [41:0] mul_l;
+
+    always @(posedge clk) begin
+        mul_h <= $unsigned(m1_ext) * $unsigned(m2_high);
+    end
+
+    always @(posedge clk) begin
+        mul_l <= $unsigned(m1_ext) * $unsigned(m2_low);
+    end
 
 endmodule
