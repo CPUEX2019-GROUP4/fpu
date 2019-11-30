@@ -43,8 +43,8 @@ module fpau (
     end
 
     wire op_clk1 = ~(op_clk2 || op_clk3 || op_clk4 || op_clk5);
-    wire op_clk2 = 1'b0;
-    wire op_clk3 = 1'b0;
+    wire op_clk2 = operation == `FPU_OPFMUL;
+    wire op_clk3 = operation == `FPU_OPFADD || operation == `FPU_OPFSUB;
     wire op_clk4 = 1'b0;
     wire op_clk5 = 1'b0;
 
