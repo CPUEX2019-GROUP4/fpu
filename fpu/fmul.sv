@@ -39,7 +39,7 @@ module fmul (
     wire [7:0] elast = carry ? emuled_plus1_biased : emuled_biased;
 
     assign y[31] = s1 != s2;
-    assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? {31'b0} : {elast, mlast};
+    assign y[30:0] = (e1 == 8'b0) || (e2 == 8'b0) ? 31'b0 : {elast, mlast};
 
     wire [17:0] m2_low = m2_ext[17:0];
     wire [5:0] m2_high = m2_ext[23:18];
