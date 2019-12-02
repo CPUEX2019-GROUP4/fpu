@@ -58,16 +58,30 @@ module top ();
             in_data <= 32'd0; // 0
             y <= 5'd0;
             ready <= 1;
-        end else if (i == 10) begin
+        end else if (i == 6) begin
             operation <= `FPU_OPSET;
             in_data <= 32'h3f800000; // 1
             y <= 5'd1;
             ready <= 1;
-        end else if (i == 15) begin
+        end else if (i == 8) begin
+            operation <= `FPU_OPFMUL;
+            // operation <= `FPU_OPFADD;
+            x1 <= 5'd0;
+            x2 <= 5'd0;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 12) begin
             operation <= `FPU_OPFMUL;
             // operation <= `FPU_OPFADD;
             x1 <= 5'd0;
             x2 <= 5'd1;
+            y <= 5'd2;
+            ready <= 1;
+        end else if (i == 16) begin
+            operation <= `FPU_OPFMUL;
+            // operation <= `FPU_OPFADD;
+            x1 <= 5'd1;
+            x2 <= 5'd0;
             y <= 5'd2;
             ready <= 1;
         end else if (i == 20) begin
