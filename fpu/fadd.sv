@@ -82,12 +82,12 @@ module fadd (
     // reg div
 
     // 18 -
-    wire [7:0] eyr = eyf_[7:0];
-    wire [26:0] myf = eyf_ == 9'b0 ? (myd_ << (eyd_[4:0] - 1)) : (myd_ << se_);
+    wire [7:0] eyr = eyf__[7:0];
+    wire [26:0] myf = eyf__ == 9'b0 ? (myd__ << (eyd__[4:0] - 1)) : (myd__ << se__);
 
     // 19 -
-    wire [24:0] myr = (myf[1] && ~myf[0] && ~stck_ && myf[2])
-        || (myf[1] && ~myf[0] && s1_ == s2_ && stck_)
+    wire [24:0] myr = (myf[1] && ~myf[0] && ~stck__ && myf[2])
+        || (myf[1] && ~myf[0] && s1__ == s2__ && stck__)
         || (myf[1] && myf[0]) ? (myf[26:2] + 25'b1) : myf[26:2];
     
     // 20 -
@@ -98,9 +98,9 @@ module fadd (
     wire [22:0] my = myr[24] ? 23'b0 : myr[22:0];
 
     // 22 -
-    wire sy = ss_;
+    wire sy = ss__;
 
-    assign y = if_add0_ ? y_if_add0_ : {sy, ey, my};
+    assign y = if_add0__ ? y_if_add0__ : {sy, ey, my};
 
     reg s1_;
     reg s2_;
@@ -144,6 +144,48 @@ module fadd (
     reg [22:0] my_;
     reg sy_;
 
+    reg s1__;
+    reg s2__;
+    reg [7:0] e1__;
+    reg [7:0] e2__;
+    reg [22:0] m1__;
+    reg [22:0] m2__;
+    reg [24:0] m1a__;
+    reg [24:0] m2a__;
+    reg [7:0] e1a__;
+    reg [7:0] e2a__;
+    reg [7:0] e2ai__;
+    reg [8:0] te__;
+    reg ce__;
+    reg [9:0] tdetmp__;
+    reg [7:0] tde__;
+    reg [4:0] de__;
+    reg sel__;
+    reg [24:0] ms__;
+    reg [24:0] mi__;
+    reg [7:0] es__;
+    reg [7:0] ei__;
+    reg ss__;
+    reg [55:0] mie__;
+    reg [55:0] mia__;
+    reg [31:0] y_if_add0__;
+    reg if_add0__;
+    reg tstck__;
+    reg [26:0] mye__;
+    reg [7:0] esi__;
+    reg [7:0] eyd__;
+    reg [26:0] myd__;
+    reg stck__;
+    reg [4:0] se__;
+    reg [8:0] eyf__;
+    reg [7:0] eyr__;
+    reg [26:0] myf__;
+    reg [24:0] myr__;
+    reg [7:0] eyri__;
+    reg [7:0] ey__;
+    reg [22:0] my__;
+    reg sy__;
+
     always @(posedge clk) begin
         s1_ <= s1;
         s2_ <= s2;
@@ -186,6 +228,43 @@ module fadd (
         ey_ <= ey;
         my_ <= my;
         sy_ <= sy;
+    end
+
+    always @(posedge clk) begin
+        s1__ <= s1_;
+        s2__ <= s2_;
+        e1__ <= e1_;
+        e2__ <= e2_;
+        m1__ <= m1_;
+        m2__ <= m2_;
+        m1a__ <= m1a_;
+        m2a__ <= m2a_;
+        e1a__ <= e1a_;
+        e2a__ <= e2a_;
+        e2ai__ <= e2ai_;
+        te__ <= te_;
+        ce__ <= ce_;
+        tdetmp__ <= tdetmp_;
+        tde__ <= tde_;
+        de__ <= de_;
+        sel__ <= sel_;
+        ms__ <= ms_;
+        mi__ <= mi_;
+        es__ <= es_;
+        ei__ <= ei_;
+        ss__ <= ss_;
+        mie__ <= mie_;
+        mia__ <= mia_;
+        y_if_add0__ <= y_if_add0_;
+        if_add0__ <= if_add0_;
+        tstck__ <= tstck;
+        mye__ <= mye;
+        esi__ <= esi;
+        eyd__ <= eyd;
+        myd__ <= myd;
+        stck__ <= stck;
+        se__ <= se;
+        eyf__ <= eyf;
     end
 
 endmodule
