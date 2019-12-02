@@ -56,29 +56,12 @@ module fmul (
 
     wire [22:0] mlast = mrounded[24] ? 23'b0 : mrounded[22:0];
 
-    wire [7:0] elast = carry ? emuled_plus1_biased_ : emuled_biased_;
+    wire [7:0] elast = carry ? emuled_plus1_biased : emuled_biased;
 
-    assign y[31] = is_y_neg_;
-    assign y[30:0] = is_y_0_ ? 31'b0 : {elast, mlast};
+    assign y[31] = is_y_neg;
+    assign y[30:0] = is_y_0 ? 31'b0 : {elast, mlast};
 
-    reg [29:0] mul_h;
-    reg [41:0] mul_l;
-
-    always @(posedge clk) begin
-        mul_h <= $unsigned(m1_ext) * $unsigned(m2_high);
-        mul_l <= $unsigned(m1_ext) * $unsigned(m2_low);
-    end
-
-    reg [7:0] emuled_biased_;
-    reg [7:0] emuled_plus1_biased_;
-    reg is_y_neg_;
-    reg is_y_0_;
-
-    always @(posedge clk) begin
-        emuled_biased_ <= emuled_biased;
-        emuled_plus1_biased_ <= emuled_plus1_biased;
-        is_y_neg_ <= is_y_neg;
-        is_y_0_ <= is_y_0;
-    end
+    wire [29:0] mul_h = $unsigned(m1_ext) * $unsigned(m2_high);
+    wire [41:0] mul_l = $unsigned(m1_ext) * $unsigned(m2_low);
 
 endmodule
