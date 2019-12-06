@@ -57,15 +57,27 @@ module fadd (
     wire [31:0] y_if_add0 = e2 == 8'b0 ? x1 : x2;
     wire if_add0 = e1 == 8'b0 || e2 == 8'b0;
 
+    wire [26:0] mye2 = {ms, 2'b0} - {mia2, 1'b0};
+
+    wire tstck2 = 0;
+
+    wire [7:0] eyd2 = es;
+    wire [26:0] myd2 = mye2;
+    wire stck2 = tstck2;
+
+    wire [4:0] se2;
+    msb32 msb32_1 (
+        .x({myd2[25:0], 1'b1, 5'b0}),
+        .y(se2)
+    );
+
     // reg div
 
     // 12 -
     wire tstck = |(mia_[28:0]);
-    wire tstck2 = 0;
 
     // 13 -
     wire [26:0] mye = s1_ == s2_ ? ({ms_, 2'b0} + mia_[55:29]) : ({ms_, 2'b0} - mia_[55:29]);
-    wire [26:0] mye2 = {ms_, 2'b0} - {mia2_, 1'b0};
 
     // 14 -
     wire [7:0] esi = es_ + 1;
@@ -75,55 +87,44 @@ module fadd (
     wire [26:0] myd = mye[26] ? (mye >> 1) : mye;
     wire stck = mye[26] ? (tstck | mye[0]) : tstck;
 
-    wire [7:0] eyd2 = es_;
-    wire [26:0] myd2 = mye2;
-    wire stck2 = tstck2;
-
     // 16 -
     wire se = ~myd[25];
-    wire [4:0] se2;
-    msb32 msb32_1 (
-        .x({myd2[25:0], 1'b1, 5'b0}),
-        .y(se2)
-    );
 
     // 17 -
     wire [8:0] eyf = {1'b0, eyd} <= {8'b0, se} ? 0 : {1'b0, eyd} - {8'b0, se};
-    wire [8:0] eyf2 = {1'b0, eyd2} <= {4'b0, se2} ? 0 : {1'b0, eyd2} - {4'b0, se2};
-
-    // reg div
+    wire [8:0] eyf2 = {1'b0, eyd2_} <= {4'b0, se2_} ? 0 : {1'b0, eyd2_} - {4'b0, se2_};
 
     // 18 -
-    wire [7:0] eyr1 = eyf__[7:0];
-    wire [26:0] myf = eyf__ == 9'b0 ? (myd__ << (eyd__[4:0] - 1)) : (myd__ << se__);
-    wire [7:0] eyr2 = eyf2__[7:0];
-    wire [26:0] myf2 = eyf2__ == 9'b0 ? (myd2__ << (eyd2__[4:0] - 1)) : (myd2__ << se2__);
+    wire [7:0] eyr1 = eyf[7:0];
+    wire [26:0] myf = eyf == 9'b0 ? (myd << (eyd[4:0] - 1)) : (myd << se);
+    wire [7:0] eyr2 = eyf2[7:0];
+    wire [26:0] myf2 = eyf2 == 9'b0 ? (myd2_ << (eyd2_[4:0] - 1)) : (myd2_ << se2_);
 
     // 19 -
-    wire [24:0] myrr = (myf[1] && ~myf[0] && ~stck__ && myf[2])
-        || (myf[1] && ~myf[0] && s1__ == s2__ && stck__)
+    wire [24:0] myrr = (myf[1] && ~myf[0] && ~stck && myf[2])
+        || (myf[1] && ~myf[0] && s1_ == s2_ && stck)
         || (myf[1] && myf[0]) ? (myf[26:2] + 25'b1) : myf[26:2];
-    wire [24:0] myrr2 = (myf2[1] && ~myf2[0] && ~stck2__ && myf2[2])
-        || (myf2[1] && ~myf2[0] && s1__ == s2__ && stck2__)
+    wire [24:0] myrr2 = (myf2[1] && ~myf2[0] && ~stck2_ && myf2[2])
+        || (myf2[1] && ~myf2[0] && s1_ == s2_ && stck2_)
         || (myf2[1] && myf2[0]) ? (myf2[26:2] + 25'b1) : myf2[26:2];
 
-    wire [24:0] myr = use2__ ? myrr2 : myrr;
+    wire [24:0] myr = use2_ ? myrr2 : myrr;
 
     // 20 -
     wire [7:0] eyrri1 = eyr1 + 8'b1;
     wire [7:0] eyrri2 = eyr2 + 8'b1;
 
-    wire [7:0] eyri = use2__ ? eyrri2 : eyrri1;
-    wire [7:0] eyr = use2__ ? eyr2 : eyr1;
+    wire [7:0] eyri = use2_ ? eyrri2 : eyrri1;
+    wire [7:0] eyr = use2_ ? eyr2 : eyr1;
 
     // 21 -
     wire [7:0] ey = myr[24] ? eyri : (myr[23:0] == 24'b0 ? 8'b0 : eyr);
     wire [22:0] my = myr[24] ? 23'b0 : myr[22:0];
 
     // 22 -
-    wire sy = ss__;
+    wire sy = ss_;
 
-    assign y = if_add0__ ? y_if_add0__ : {sy, ey, my};
+    assign y = if_add0_ ? y_if_add0_ : {sy, ey, my};
 
     reg s1_;
     reg s2_;
@@ -182,63 +183,6 @@ module fadd (
     reg [22:0] my_;
     reg sy_;
 
-    reg s1__;
-    reg s2__;
-    reg [7:0] e1__;
-    reg [7:0] e2__;
-    reg [22:0] m1__;
-    reg [22:0] m2__;
-    reg [24:0] m1a__;
-    reg [24:0] m2a__;
-    reg [7:0] e1a__;
-    reg [7:0] e2a__;
-    reg [7:0] e2ai__;
-    reg [8:0] te__;
-    reg ce__;
-    reg [9:0] tdetmp__;
-    reg [7:0] tde__;
-    reg [4:0] de__;
-    reg de2__;
-    reg use2__;
-    reg sel__;
-    reg [24:0] ms__;
-    reg [24:0] mi__;
-    reg [7:0] es__;
-    reg [7:0] ei__;
-    reg ss__;
-    reg [55:0] mie__;
-    reg [55:0] mie2__;
-    reg [55:0] mia__;
-    reg [55:0] mia2__;
-    reg [31:0] y_if_add0__;
-    reg if_add0__;
-    reg tstck__;
-    reg tstck2__;
-    reg [26:0] mye__;
-    reg [26:0] mye2__;
-    reg [7:0] esi__;
-    reg [7:0] eyd__;
-    reg [26:0] myd__;
-    reg stck__;
-    reg [7:0] eyd2__;
-    reg [26:0] myd2__;
-    reg stck2__;
-    reg [4:0] se__;
-    reg [4:0] se2__;
-    reg [8:0] eyf__;
-    reg [8:0] eyf2__;
-    reg [7:0] eyr__;
-    reg [26:0] myf__;
-    reg [7:0] eyr2__;
-    reg [26:0] myf2__;
-    reg [24:0] myrr__;
-    reg [24:0] myrr2__;
-    reg [24:0] myr__;
-    reg [7:0] eyri__;
-    reg [7:0] ey__;
-    reg [22:0] my__;
-    reg sy__;
-
     always @(posedge clk) begin
         s1_ <= s1;
         s2_ <= s2;
@@ -296,54 +240,6 @@ module fadd (
         ey_ <= ey;
         my_ <= my;
         sy_ <= sy;
-    end
-
-    always @(posedge clk) begin
-        s1__ <= s1_;
-        s2__ <= s2_;
-        e1__ <= e1_;
-        e2__ <= e2_;
-        m1__ <= m1_;
-        m2__ <= m2_;
-        m1a__ <= m1a_;
-        m2a__ <= m2a_;
-        e1a__ <= e1a_;
-        e2a__ <= e2a_;
-        e2ai__ <= e2ai_;
-        te__ <= te_;
-        ce__ <= ce_;
-        tdetmp__ <= tdetmp_;
-        tde__ <= tde_;
-        de__ <= de_;
-        de2__ <= de2_;
-        use2__ <= use2_;
-        sel__ <= sel_;
-        ms__ <= ms_;
-        mi__ <= mi_;
-        es__ <= es_;
-        ei__ <= ei_;
-        ss__ <= ss_;
-        mie__ <= mie_;
-        mie2__ <= mie2_;
-        mia__ <= mia_;
-        mia2__ <= mia2_;
-        y_if_add0__ <= y_if_add0_;
-        if_add0__ <= if_add0_;
-        tstck__ <= tstck;
-        tstck2__ <= tstck2;
-        mye__ <= mye;
-        mye2__ <= mye2;
-        esi__ <= esi;
-        eyd__ <= eyd;
-        myd__ <= myd;
-        stck__ <= stck;
-        eyd2__ <= eyd2;
-        myd2__ <= myd2;
-        stck2__ <= stck2;
-        se__ <= se;
-        se2__ <= se2;
-        eyf__ <= eyf;
-        eyf2__ <= eyf2;
     end
 
 endmodule
