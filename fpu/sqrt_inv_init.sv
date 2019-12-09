@@ -1,4 +1,3 @@
-
 module sqrt_inv_init_m (
     input wire [6:0] m,
     output wire [5:0] m_ );
