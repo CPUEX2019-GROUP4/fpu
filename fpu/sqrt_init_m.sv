@@ -4,7 +4,7 @@ module sqrt_init_m (
 
     function [10:0] f(input [10:0] in);
     begin
-        case(in)
+        case (in)
             11'b00000000000: f = 11'b01101010000;
             11'b00000000001: f = 11'b01101001110;
             11'b00000000010: f = 11'b01101001101;

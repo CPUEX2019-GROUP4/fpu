@@ -4,9 +4,9 @@
 #include <math.h>
 #include "repl.h"
 
-#define MINPREC 6
-#define MOUTPREC 6
-#define SQRT_LOOP_COUNT 2
+#define MINPREC 10
+#define MOUTPREC 11
+#define SQRT_LOOP_COUNT 1
 
 #define MUSE(prec) (0x00800000 - (1 << (23 - prec)))
 
