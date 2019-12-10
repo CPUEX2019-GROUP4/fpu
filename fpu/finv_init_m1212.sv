@@ -1,4 +1,4 @@
-module (
+module finv_init_m (
     input wire [11:0] m,
     output wire [11:0] m_ );
 
