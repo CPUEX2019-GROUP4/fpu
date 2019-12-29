@@ -1,0 +1,101 @@
+paraNum:
+    8
+ignoreRegs:
+    r0
+argClassify:
+    nop
+    add w r r
+    sub w r r
+    div2 w r
+    div10 w r
+    addi w r _
+    lw w r _
+    sw r r _
+    lui w _
+    or w r r
+    ori w r _
+    slt w r r
+    slti w r _
+    sllv w r r
+    sll w r _
+    beq r r _
+    bne r r _
+    j _
+    jr r
+    jal _
+    jalr r
+    lwab w r r
+    swab r r r
+    mv w r
+    subi w r _
+    ftoi w r
+    itof w r
+    fneg w r
+    fadd w r r
+    fsub w r r
+    fmul w r r
+    flw w r _
+    lwcZ w r _
+    fsw w r _
+    swcZ w r _
+    fclt r r
+    fcz r
+    bc1t _
+    bc1f _
+    flui w _
+    fori w r _
+    fmv w r
+    sqrt_init w r
+    finv_init w r
+    flwab w r r
+    fswab w r r
+    out r _
+    inint w _
+    inflt w _
+implicitWriteArg:
+    jal r31
+    jalr r31
+latency:
+    fadd 2
+    fsub 2
+    fmul 2
+defaultLatency:
+    1
+kind:
+    lw mread
+    sw mwrite
+    beq jump
+    bne jump
+    j jump
+    jr jump
+    jal jump
+    jalr jump
+    lwab mread
+    swab mwrite
+    flw mread
+    lwcZ mread
+    fsw mwrite
+    swcZ mwrite
+    fclt fcomp
+    fcz fcomp
+    bc1t fjump
+    bc1f fjump
+    flwab mread
+    fswab mwrite
+    out out
+    inint in
+    inflt in
+defaultKind:
+    default
+kDepsOn:
+    default mread mwrite fcomp jump fjump in out
+    _ _ _ _ 1 1 _ _
+    _ _ 1 _ 1 1 _ _
+    _ 0 1 _ 1 1 _ _
+    _ _ _ 1 1 1 _ _
+    0 0 0 0 1 1 0 0
+    0 0 0 1 1 1 0 0
+    _ _ _ _ 1 1 1 _
+    _ _ _ _ 1 1 _ 1
+kParaMax:
+    mread mwrite 1
