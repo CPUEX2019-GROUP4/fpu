@@ -1,5 +1,5 @@
 paraNum:
-    8
+    1
 ignoreRegs:
     r0
 argClassify:
@@ -50,8 +50,10 @@ argClassify:
     flwab w r r
     fswab w r r
     out r _
-    inint w _
-    inflt w _
+    # inint w _
+    # inflt w _
+    inint w
+    inflt w
 implicitWriteArg:
     jal r31
     jalr r31

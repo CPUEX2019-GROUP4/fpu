@@ -1,5 +1,5 @@
 module AsmConv.Schedule.AbstInst (
-    AbstInst(..), makeToAbstInst
+    AbstInst(..), makeToAbstInst, makeToAbstInstNpt
 ) where
 
 import qualified Data.HashMap.Strict as Map
@@ -45,6 +45,32 @@ makeToAbstInst config inst args = do
         aiWriteRegs = wRegs',
         aiReadRegs = rRegs'
     }
+
+makeToAbstInstNpt :: (Eq i, Eq r, Hashable i, Hashable r) =>
+    Config i r k -> i -> [r] -> [r] -> AbstInst k r
+makeToAbstInstNpt config inst wargs rargs =
+    let Config {
+            cfgIgnoreRegs = ignoreRegs,
+            cfgImplicitReadArg = implicitReadArg,
+            cfgImplicitWriteArg = implicitWriteArg,
+            cfgKind = kind,
+            cfgDefaultKind = defaultKind,
+            cfgLatency = latency,
+            cfgDefaultLatency = defaultLatency
+            } = config
+        (wRegs, rRegs) = (wargs, rargs)
+        lat = Map.lookupDefault defaultLatency inst latency
+        ki = Map.lookupDefault defaultKind inst kind
+        irRegs = Map.lookupDefault Set.empty inst implicitReadArg
+        iwRegs = Map.lookupDefault Set.empty inst implicitWriteArg
+        wRegs' = Set.toList $ Set.difference (Set.union iwRegs $ Set.fromList wRegs) ignoreRegs
+        rRegs' = Set.toList $ Set.difference (Set.union irRegs $ Set.fromList rRegs) ignoreRegs
+    in AbstInst {
+        aiInstKind = ki,
+        aiLatency = lat,
+        aiWriteRegs = wRegs',
+        aiReadRegs = rRegs'
+        }
 
 -- returns: (write regs, read regs)
 partitionRegs :: [r] -> [ReadOrWrite] -> Maybe ([r], [r])

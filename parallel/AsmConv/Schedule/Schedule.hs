@@ -1,5 +1,5 @@
 module AsmConv.Schedule.Schedule (
-    schedule
+    schedule, scheduleNpt
 ) where
 
 import qualified Data.HashMap.Strict as Map
@@ -21,6 +21,19 @@ schedule config insts = do
     let instIds = map InstId [0 ..]
         idInsts = zip instIds insts
     idAbstInsts <- mapLeft (mapSnd unInstId) $ makeAbstInsts config idInsts
+    return $ scheduleMain config idAbstInsts
+
+scheduleNpt :: (Eq i, Eq r, Eq k, Hashable i, Hashable r, Hashable k) =>
+    Config i r k -> [(i, [r], [r])] -> [[Int]]
+scheduleNpt config insts =
+    let instIds = map InstId [0 ..]
+        idInsts = zip instIds insts
+        idAbstInsts = makeAbstInstsNpt config idInsts
+    in scheduleMain config idAbstInsts
+
+scheduleMain :: (Eq i, Eq r, Eq k, Hashable i, Hashable r, Hashable k) =>
+    Config i r k -> [(InstId, AbstInst k r)] -> [[Int]]
+scheduleMain config idAbstInsts =
     let depsOn = makeDepsOn $ curry (fromJust . flip Map.lookup (cfgKDepsOn config))
         depEdges = makeDepEdges depsOn idAbstInsts
         paraMax = makeParaMax (cfgKParaMax config) idAbstInsts
@@ -30,7 +43,7 @@ schedule config insts = do
             scLatency = Map.fromList $ map (mapSnd aiLatency) idAbstInsts
         }
         scheduledIds = listSchedule lsConfig depEdges
-    return $ map (map unInstId) scheduledIds
+    in map (map unInstId) scheduledIds
 
 unInstId :: InstId -> Int
 unInstId (InstId i) = i
@@ -43,6 +56,13 @@ makeAbstInsts config idInsts = do
         toAbstInst = uncurry $ makeToAbstInst config
     idAbstInsts <- eitherMapWithId toAbstInst idInsts
     return idAbstInsts
+
+makeAbstInstsNpt :: (Eq i, Eq r, Hashable i, Hashable r) =>
+    Config i r k -> [(InstId, (i, [r], [r]))] -> [(InstId, AbstInst k r)]
+makeAbstInstsNpt config idInsts =
+    let toAbstInst (a, b, c) = makeToAbstInstNpt config a b c
+        idAbstInsts = map (mapSnd toAbstInst) idInsts
+    in idAbstInsts
 
 makeParaMax :: (Eq k, Hashable k) =>
     [(Set k, Int)] -> [(InstId, AbstInst k r)] -> [(Set InstId, Int)]

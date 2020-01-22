@@ -42,7 +42,7 @@ emit prog scheduledInsts = instStr
         dummy = error "dummy"
         dlabels = dummy : labels
         scheduleds = map
-            (intercalate "\n" . intersperse "    ;" . map (intercalate "\n" . map iInst))
+            (intercalate "\n" . intersperse "    #;" . map (intercalate "\n" . map iInst))
             scheduledInsts
         insts = tail $ concat $ zipWith (\ x y -> [x, y]) dlabels scheduleds
         instStr = unlines $ filter (/= "") insts
