@@ -12,13 +12,16 @@ import qualified Data.HashSet as Set
 import qualified Data.Vector as Vec
 import GHC.Generics (Generic)
 
-import qualified Asm as Asm
-import Syntax (
+import qualified Back.Asm as Asm
+import Front.Syntax (
     Unary_operator(..), Arith_unary(..), Arith_binary(..), Float_unary(..),
     Float_binary(..)
     )
-import qualified Type as Type
-import RunRun (RunRun, genid, eputstrln)
+import qualified RunRun.Type as Type
+import RunRun.RunRun (
+    RunRun, genid, eputstrln
+    -- , throw, Error(..)
+    )
 
 import AsmConv.Schedule.Config
 import AsmConv.Schedule.Schedule (scheduleNpt)
@@ -64,6 +67,7 @@ data InstName =
     | Sf
     | CallDir
     | Save
+    | SaveFloat
     | Restore
     | Makearray
     deriving (Show, Eq, Generic)
@@ -131,39 +135,20 @@ tSchedule theTy theT = do
     theVar <- genid "AsmConv.Bind.Schedule.ans"
     (varexps, insts) <- unzip <$> toInsts (theVar, theTy) theT
 
-    ----- 動かない (Emit.hs: g oc (NonTail "R0", e) ---> g oc (NonTail "r0", e))
-    {-
-        array::at
-        died at 1,693,955th instruction of pc: 6363, line: 7026
-
-        Emit の末尾再帰の処理が絡んでいる?
-    -}
     let scheduled = concat $ scheduleNpt config insts
         varexpVec = Vec.fromList varexps
         scheduledVarexps = map (varexpVec Vec.!) scheduled
-        mv = case theTy of
-            Type.Float -> Asm.FMv
-            _ -> Asm.Mv
-        -- もともと Ans のところにあった Exp が別のところに行っているかもしれないので、
-        -- 最後に Mv を入れる。
-        scheduledT = foldr (\ (varty, e) t -> Asm.Let varty e t)
-            (Asm.Ans $ mv theVar) scheduledVarexps
-    -----
-
-    ----- 動くが型が合わない
-    -- let scheduled = concat $ scheduleNpt config insts
-    --     varexpVec = Vec.fromList varexps
-    --     scheduledVarexps = map (varexpVec Vec.!) scheduled
-    --     ((_, scheduledAnsTy), scheduledAnsExp) = last scheduledVarexps
-    --     scheduledT = foldr (\ (varty, e) t -> Asm.Let varty e t)
-    --         (Asm.Ans scheduledAnsExp) (init scheduledVarexps)
-    -- if scheduledAnsTy /= theTy then
-    --     eputstrln $ "Warning: AsmConv.Bind.Schedule.tSchedule: "
-    --         ++ "scheduledAnsTy is expected type " ++ show theTy
-    --         ++ " but actually " ++ show scheduledAnsTy
-    -- else
-    --     return ()
-    -----
+    -- もともと Ans のところにあった Exp が別のところに行っているかもしれないので、
+    -- 最後に Mv を入れる。
+    lastExp <- case theTy of
+        Type.Float -> return $ Asm.FMv theVar
+        -- Type.Int -> return $ Asm.Mv theVar
+        Type.Unit -> return $ Asm.Nop -- 本来の意味の nop (プログラムの終了ではない)
+        _ -> return $ Asm.Mv theVar
+        -- _ -> throw $ Fail $ "Fatal: AsmConv.Bind.Schedule.tSchedule: "
+        --     ++ "Move inst is undefined for type " ++ show theTy
+    let scheduledT = foldr (\ (varty, e) t -> Asm.Let varty e t)
+            (Asm.Ans lastExp) scheduledVarexps
 
     return scheduledT
 
@@ -228,6 +213,7 @@ toInst (Asm.Sf r1 r2 (Asm.V r3))        = (Sf, [], [r1, r2, r3])
 toInst (Asm.Sf r1 r2 (Asm.C _))         = (Sf, [], [r1, r2])
 toInst (Asm.CallDir _ rs1 rs2)          = (CallDir, [], rs1 ++ rs2)
 toInst (Asm.Save r1 r2)                 = (Save, [], [r1, r2])
+toInst (Asm.SaveFloat r1 r2)            = (SaveFloat, [], [r1, r2])
 toInst (Asm.Restore r1)                 = (Restore, [], [r1])
 toInst (Asm.Makearray _ (Asm.V r1) r2)  = (Makearray, [], [r1, r2])
 toInst (Asm.Makearray _ (Asm.C _) r2)   = (Makearray, [], [r2])
