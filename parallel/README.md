@@ -5,6 +5,12 @@
 1. ``Main.hs`` で ``import qualified AsmConv.Bind.Schedule as Schedule`` として、``>>= Schedule.schedule`` を ``>>= RegAlloc.regalloc`` の前に置く。
 1. ``make``
 
+### version
+
+| scheduler | compiler |
+|:--:|:--:|
+| ba77c71 | de13952 |
+
 ## アセンブリを変換する
 package ``split`` が必要になるかもしれない。
 
