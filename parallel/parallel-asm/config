@@ -54,6 +54,7 @@ argClassify:
     # inflt w _
     inint w
     inflt w
+    blt r r _
 implicitWriteArg:
     jal r31
     jalr r31
@@ -87,6 +88,7 @@ kind:
     out out
     inint in
     inflt in
+    blt jump
 defaultKind:
     default
 kDepsOn:

@@ -1,0 +1,4 @@
+.stack-work/
+parallel-asm.cabal
+*~
+/testcase/*.p.s

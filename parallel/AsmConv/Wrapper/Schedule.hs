@@ -2,7 +2,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module AsmConv.Bind.Schedule (
+module AsmConv.Wrapper.Schedule (
     schedule
 ) where
 
