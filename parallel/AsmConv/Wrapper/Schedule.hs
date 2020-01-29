@@ -132,7 +132,7 @@ schedule (Asm.Aprog afundefs theT) = do
 
 tSchedule :: Type.Type -> Asm.T -> RunRun Asm.T
 tSchedule theTy theT = do
-    theVar <- genid "AsmConv.Bind.Schedule.ans"
+    theVar <- genid "AsmConv.Wrapper.Schedule.ans"
     (varexps, insts) <- unzip <$> toInsts (theVar, theTy) theT
 
     let scheduled = concat $ scheduleNpt config insts
@@ -145,7 +145,7 @@ tSchedule theTy theT = do
         -- Type.Int -> return $ Asm.Mv theVar
         Type.Unit -> return $ Asm.Nop -- 本来の意味の nop (プログラムの終了ではない)
         _ -> return $ Asm.Mv theVar
-        -- _ -> throw $ Fail $ "Fatal: AsmConv.Bind.Schedule.tSchedule: "
+        -- _ -> throw $ Fail $ "Fatal: AsmConv.Wrapper.Schedule.tSchedule: "
         --     ++ "Move inst is undefined for type " ++ show theTy
     let scheduledT = foldr (\ (varty, e) t -> Asm.Let varty e t)
             (Asm.Ans lastExp) scheduledVarexps
