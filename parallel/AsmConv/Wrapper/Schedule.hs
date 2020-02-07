@@ -79,7 +79,7 @@ type Inst = (InstName, [String], [String])
 config :: Config InstName String Kind
 config = defaultConfig {
     cfgParaNum = 1,
-    cfgIgnoreRegs = Set.fromList ["r0"],
+    cfgIgnoreRegs = Set.fromList ["%r0"],
     cfgLatency = Map.fromList [
         (Mv, 0),
         (FMv, 0),
